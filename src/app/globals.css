@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    transition: background-color 0.3s, color 0.3s;
+  }
+}
+
+html {
+  --tw-bg-opacity: 1;
+  --tw-text-opacity: 1;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

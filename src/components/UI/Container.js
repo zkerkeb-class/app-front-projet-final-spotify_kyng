@@ -4,7 +4,7 @@ const Container = ({ children, gradFrom, gradTo }) => {
   return (
     <section
       className={`h-full w-full overflow-y-auto py-5 pl-5 bg-gradient-to-b
-       ${gradFrom ? gradFrom : 'from-zinc-700'} ${gradTo ? gradTo : 'to-black'}`}
+       ${gradFrom ? gradFrom : 'dark:from-zinc-700 from-white'} ${gradTo ? gradTo : 'dark:to-black to-zinc-700'}`}
     >
       {children}
     </section>
