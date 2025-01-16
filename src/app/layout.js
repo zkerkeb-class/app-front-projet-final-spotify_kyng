@@ -22,8 +22,8 @@ export default function RootLayout({ children }) {
         <SideBar />
         <main className="flex-1 h-full">
           {children}
-          </main>
-          <Jam />
+        </main>
+        <Jam />
       </body>
     </html>
   );
