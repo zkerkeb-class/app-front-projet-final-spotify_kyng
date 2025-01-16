@@ -146,8 +146,8 @@ const topSongs = [
 const Home = () => {
   return (
     <Container>
-      <h2 className="text-white text-4xl mb-10">Les playlists du moments</h2>
-      <h3 className="text-white text-2xl ">Top 10 des artistes populaires</h3>
+      <h2 className="text-black dark:text-white text-4xl mb-10">Les playlists du moments</h2>
+      <h3 className="text-black dark:text-white text-2xl ">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {topArtists.map((artist) => (
           <li className="flex-none">
