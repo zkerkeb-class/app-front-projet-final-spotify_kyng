@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`flex h-screen ${inter.className}`}>
         <SideBar />
-        <main className="flex-1 h-full">
+        <main className="w-4/5 h-full">
           {children}
         </main>
         <Jam />
