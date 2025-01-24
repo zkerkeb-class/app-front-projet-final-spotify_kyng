@@ -3,7 +3,7 @@ import './globals.css';
 import SideBar from '@/components/partials/Sidebar';
 import Jam from '@/components/partials/Jam';
 import Header from '@/components/partials/Header';
-
+import Head from 'next/head';
 const inter = Inter({
   subsets: ['latin'],
 });
@@ -22,6 +22,9 @@ export default function RootLayout({ children }) {
       lang="en"
       className="dark"
     >
+      <Head>
+        <meta name="apple-mobile-web-app-title" content="Spotify" />
+      </Head>
       <body className={`h-screen ${inter.className} overflow-x-hidden flex flex-col dark:bg-black`}>
         <Header />
         <div className="flex gap-2 flex-1">

@@ -150,9 +150,11 @@ const Home = () => {
       <h3 className="text-black dark:text-white text-2xl ">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {topArtists.map((artist) => (
-          <li className="flex-none">
+          <li
+            key={artist.id}
+            className="flex-none"
+          >
             <ArtistCard
-              key={artist.id}
               title={artist.title}
               img={img}
             />
