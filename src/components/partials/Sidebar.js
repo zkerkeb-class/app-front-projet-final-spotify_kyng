@@ -7,8 +7,8 @@ const SideBar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-zinc-950 py-5 px-2 min-w-60">
-      <nav className="flex  flex-col justify-between h-full">
+    <aside className="bg-opacity-50 bg-zinc-800 rounded-lg py-5 px-2 min-w-60">
+      <nav className="flex  flex-col justify-between h-max">
         <div className="flex flex-col gap-5">
           <ul className="bg-zinc-800 rounded">
             <NavItem
@@ -47,7 +47,6 @@ const SideBar = () => {
               }
             />
           </ul>
-        </div>
         <ul className="bg-zinc-800 rounded">
           <NavItem
             url="/settings"
@@ -56,6 +55,7 @@ const SideBar = () => {
             icon={<Settings />}
           />
         </ul>
+        </div>
       </nav>
     </aside>
   );
