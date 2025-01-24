@@ -13,16 +13,7 @@ const Header = () => {
         width={24}
         height={24}
       />
-
       <SearchBar />
-
-      <Link
-        href="#"
-        className="flex items-center gap-2 font-bold transition-all dark:hover:text-white hover:text-black hover:font-bold hover:text-lg"
-      >
-        <CircleArrowDown />
-        <span>Installer l'appli</span>
-      </Link>
     </header>
   );
 };
