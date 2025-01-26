@@ -1,3 +1,4 @@
+import AudioPlayer from '@/components/partials/AudioPlayer';
 import ArtistCard from '@/components/UI/ArtistCard';
 import Container from '@/components/UI/Container';
 import HorizontalSlider from '@/components/UI/HorizontalSlider';
@@ -58,6 +59,7 @@ const Home = async () => {
             />
           ))}
       </HorizontalSlider>
+      <AudioPlayer />
     </Container>
   );
 };
