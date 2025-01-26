@@ -19,17 +19,18 @@ const Home = async () => {
       <h2 className="text-black dark:text-white text-4xl mb-10">Les playlists du moments</h2>
       <h3 className="text-black dark:text-white text-2xl ">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
-        {topArtists && topArtists.map((artist) => (
-          <li
-            key={artist.id}
-            className="flex-none"
-          >
-            <ArtistCard
-              title={artist.title}
-              img={img}
-            />
-          </li>
-        ))}
+        {topArtists &&
+          topArtists.map((artist) => (
+            <li
+              key={artist.id}
+              className="flex-none"
+            >
+              <ArtistCard
+                title={artist.title}
+                img={img}
+              />
+            </li>
+          ))}
       </HorizontalSlider>
 
       <h3 className="text-white text-2xl ">Top 10 des derniers sons</h3>
@@ -59,7 +60,7 @@ const Home = async () => {
             />
           ))}
       </HorizontalSlider>
-      <AudioPlayer />
+      <AudioPlayer tracks={topTracks} />
     </Container>
   );
 };

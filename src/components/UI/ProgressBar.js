@@ -9,7 +9,10 @@ const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) => (
       max={duration || 100}
       value={currentTime}
       onChange={handleSeek}
-      className="flex-grow h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+      className="flex-grow h-1 bg-gray-700 rounded-full appearance-none cursor-pointer transition-all duration-300 ease-in-out"
+      style={{
+        background: `linear-gradient(to right, #1db954 ${(currentTime / duration) * 100}%, #4b4b4b 0%)`,
+      }}
     />
     <span className="text-gray-400 text-sm">{formatTime(duration)}</span>
   </div>
