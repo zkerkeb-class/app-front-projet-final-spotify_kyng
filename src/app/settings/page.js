@@ -3,6 +3,7 @@ import Container from '@/components/UI/Container';
 import React, { useEffect, useState } from 'react';
 
 const Settings = () => {
+  const [currentLang, setCurrentLang] = useState('fr');
   useEffect(() => {
     // Check for user’s previous dark mode preference
     const savedMode = localStorage.getItem('darkMode');
@@ -13,10 +14,18 @@ const Settings = () => {
         document.documentElement.classList.remove('dark');
       }
     }
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang) {
+      // Set the  language
+      setCurrentLang(savedLang);
+    } else {
+      localStorage.setItem('lang', currentLang);
+    }
   }, []);
 
   const handleLanguageChange = (lang) => {
-    alert(`Change language to ${lang}`);
+    setCurrentLang(lang);
+    localStorage.setItem('lang', lang);
   };
   return (
     <Container>
@@ -30,19 +39,19 @@ const Settings = () => {
             <div className="flex gap-4 mt-4">
               <button
                 onClick={() => handleLanguageChange('en')}
-                className="px-4 py-2 border text-white rounded-full hover:bg-zinc-700"
+                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${currentLang === 'en' ? 'bg-zinc-600' : ''}`}
               >
                 English
               </button>
               <button
                 onClick={() => handleLanguageChange('fr')}
-                className="px-4 py-2 border text-white rounded-full hover:bg-zinc-700"
+                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${currentLang === 'fr' ? 'bg-zinc-600' : ''}`}
               >
                 Français
               </button>
               <button
                 onClick={() => handleLanguageChange('ar')}
-                className="px-4 py-2 border text-white rounded-full hover:bg-zinc-700"
+                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${currentLang === 'ar' ? 'bg-zinc-600' : ''}`}
               >
                 العربية
               </button>
@@ -56,7 +65,7 @@ const Settings = () => {
               <button
                 onClick={() => {
                   document.documentElement.classList.remove('dark');
-                  localStorage.setItem('darkMode', darkMode);
+                  localStorage.setItem('darkMode', false);
                 }}
                 className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
               >
@@ -65,7 +74,7 @@ const Settings = () => {
               <button
                 onClick={() => {
                   document.documentElement.classList.add('dark');
-                  localStorage.setItem('darkMode', darkMode);
+                  localStorage.setItem('darkMode', true);
                 }}
                 className="px-4 py-2 bg-zinc-600 text-white rounded-full hover:bg-zinc-700"
               >
