@@ -1,13 +1,23 @@
+"use client"
+import React, { useEffect, useState } from 'react';
 import { PlayIcon } from 'lucide-react';
-import Image from 'next/image';
-import React from 'react';
+import NextImage from 'next/image';
+import { isValidImage } from '@/utils';
 
 const PlaylistCard = ({ title, desc, img }) => {
+const imgPlaceholder = 'https://placehold.co/200x200/jpeg';
+
+    const [isImageValid, setIsImageValid] = useState(false);
+
+    useEffect(() => {
+      isValidImage(img).then(setIsImageValid);
+    }, [img]);
+
     return (
-      <div className="p-5 relative rounded-xl text-white group hover:bg-zinc-800">
-        <div className="relative w-[150px] h-[150px] rounded-xl">
-          <Image
-            src={img || "/api/placeholder/150/150"}
+      <div className="p-5 relative rounded-xl w-48 flex flex-col items-center text-white group hover:bg-zinc-800">
+        <div className="relative w-36 h-36 rounded-xl">
+          <NextImage
+            src={isImageValid ? img : imgPlaceholder}
             alt={title + ' cover image'}
             className="w-full h-full object-cover rounded-xl"
             layout="fill"
@@ -18,14 +28,16 @@ const PlaylistCard = ({ title, desc, img }) => {
             <PlayIcon className="w-6 h-6" />
           </button>
         </div>
-        <h4 className="mt-2.5 text-sm leading-5 whitespace-nowrap text-ellipsis overflow-hidden">
-          {title}
-        </h4>
-        <p className="mt-2.5 text-xs leading-5 font-semibold text-[#b3b3b3] line-clamp-2">
-          {desc}
-        </p>
+        <div className='w-full'>
+          <h4 className="mt-2.5 text-sm leading-5 text-left text-wrap">
+            {title}
+          </h4>
+          <p className="mt-2.5 text-xs leading-5 font-semibold text-[#b3b3b3] line-clamp-2">
+            {desc}
+          </p>
+        </div>
       </div>
-    );
+    )
   };
 
 export default PlaylistCard;

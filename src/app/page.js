@@ -6,7 +6,7 @@ import { getTopAlbums } from '@/services/album.service';
 import { getTopArtists } from '@/services/artist.service';
 import { getTopTracks } from '@/services/track.service';
 
-const img = 'https://placehold.co/200x200/jpeg';
+
 
 const Home = async () => {
   const topAlbums = await getTopAlbums().then((data) => data.data);
@@ -18,17 +18,20 @@ const Home = async () => {
       <h2 className="text-black dark:text-white text-4xl mb-10">Les playlists du moments</h2>
       <h3 className="text-black dark:text-white text-2xl ">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
-        {topArtists && topArtists.map((artist) => (
+        {topArtists && topArtists.map((data) => {
+          console.log(data);
+          console.log(data.artist.images[0].path);
+          return (
           <li
-            key={artist.id}
+            key={data.artist._id}
             className="flex-none"
           >
             <ArtistCard
-              title={artist.title}
-              img={img}
+              title={data.artist.name}
+              img={data.artist.images[0]}
             />
           </li>
-        ))}
+        )})}
       </HorizontalSlider>
 
       <h3 className="text-white text-2xl ">Top 10 des derniers sons</h3>
@@ -39,7 +42,7 @@ const Home = async () => {
             <PlaylistCard
               key={track.id}
               title={track.title}
-              img={img}
+              // img={img}
               desc={track.desc}
             />
           ))}
@@ -53,7 +56,7 @@ const Home = async () => {
             <PlaylistCard
               key={album.id}
               title={album.title}
-              img={img}
+              // img={img}
               desc={album.desc}
             />
           ))}
