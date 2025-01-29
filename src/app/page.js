@@ -19,8 +19,6 @@ const Home = async () => {
       <h3 className="text-black dark:text-white text-2xl ">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {topArtists && topArtists.map((data) => {
-          console.log(data);
-          console.log(data.artist.images[0].path);
           return (
           <li
             key={data.artist._id}
