@@ -2,14 +2,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { streamTrack } from '@/services/track.service';
 import { getArtistById } from '@/services/artist.service';
+import { getAlbumById } from '@/services/album.service';
 import PlayerControls from '../UI/PlayerControls';
 import SongInfo from '../UI/SongInfo';
 import ProgressBar from '../UI/ProgressBar';
 import Waveform from '../UI/Waveform';
 
-const AudioPlayer = ({ tracks }) => {
+const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurrentTrackId }) => {
   const [currentSong, setCurrentSong] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
@@ -21,49 +21,64 @@ const AudioPlayer = ({ tracks }) => {
   const playerRef = useRef(null);
   const audioRef = useRef(null);
 
+  // Nouveau useEffect pour gérer la lecture automatique
   useEffect(() => {
-    const fetchAudioStream = async () => {
-      if (tracks && tracks.length > 0) {
-        const firstTrack = tracks[0];
-
-        if (!firstTrack.audioLink) {
-          console.error('Audio link is missing for the first track');
-          return;
-        }
-
-        try {
-          const audioUrl = await streamTrack(firstTrack.audioLink);
-
-          const artistID = firstTrack.artistId;
-
-          if (!artistID) {
-            console.error('Artist ID is missing');
-            return;
-          }
-
-          const artist = await getArtistById(artistID);
-          const artistName = artist?.name || 'Unknown Artist';
-
-          console.log('Artist Name: ', artistName);
-
-          setCurrentSong({
-            name: firstTrack.title,
-            path: audioUrl,
-            duration: formatTime(firstTrack.duration),
-            artist: artistName,
-            album: firstTrack.albumId?.title || 'Unknown Album',
-            artwork: firstTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
+    if (audioRef.current) {
+      if (isPlaying) {
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error('Erreur de lecture automatique:', error);
           });
-        } catch (error) {
-          console.error('Error fetching audio stream:', error);
         }
       } else {
-        console.error('No tracks available');
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying, currentSong]);
+
+  useEffect(() => {
+    const fetchAudioStream = async () => {
+      if (!currentTrackId || !tracks || tracks.length === 0) return;
+
+      setIsLoading(true);
+
+      try {
+        const selectedTrack = tracks.find((track) => track._id === currentTrackId);
+
+        console.log('selectedTrack : ' + selectedTrack);
+        if (!selectedTrack) throw new Error('Track not found');
+
+        const audioUrl = await streamTrack(selectedTrack.audioLink);
+
+        // Récupérer les informations complètes de l'artiste et de l'album si nécessaire
+        const artist =
+          typeof selectedTrack.artistId === 'string'
+            ? await getArtistById(selectedTrack.artistId)
+            : selectedTrack.artistId; // Déjà un objet
+
+        const album =
+          typeof selectedTrack.albumId === 'string'
+            ? await getAlbumById(selectedTrack.albumId)
+            : selectedTrack.albumId; // Déjà un objet
+
+        setCurrentSong({
+          name: selectedTrack.title,
+          path: audioUrl,
+          duration: formatTime(selectedTrack.duration),
+          artist: artist?.name || 'Unknown Artist',
+          album: album?.title || 'Unknown Album',
+          artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
+        });
+      } catch (error) {
+        console.error('Error fetching audio stream:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchAudioStream();
-  }, [tracks]);
+  }, [currentTrackId, tracks]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -149,51 +164,28 @@ const AudioPlayer = ({ tracks }) => {
     setPlayMode(nextMode);
   };
 
-  const handleSongChange = async (path) => {
-    setIsLoading(true);
-    const song = {
-      name: path.split('/').pop(),
-      path,
-      duration: '0:00',
-      artist: 'Unknown Artist',
-      album: 'Unknown Album',
-      artwork: '/images/default-artwork.webp',
-    };
-    setCurrentSong(song);
-    setIsPlaying(false);
-    setCurrentTime(0);
-
-    if (audioRef.current) {
-      audioRef.current.src = song.path;
-      await audioRef.current.load();
-    }
-    setIsLoading(false);
-  };
-
   const handleNextSong = () => {
-    if (isLoading || !currentSong || !audioFiles.length) return;
-    const currentIndex = audioFiles.indexOf(currentSong.path);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
     let nextIndex;
 
     if (playMode === 'shuffle') {
-      nextIndex = Math.floor(Math.random() * audioFiles.length);
+      nextIndex = Math.floor(Math.random() * tracks.length);
     } else {
-      nextIndex = (currentIndex + 1) % audioFiles.length;
+      nextIndex = (currentIndex + 1) % tracks.length;
     }
-    handleSongChange(audioFiles[nextIndex]);
+    setCurrentTrackId(tracks[nextIndex]._id);
   };
 
   const handlePreviousSong = () => {
-    if (isLoading || !currentSong || !audioFiles.length) return;
-    const currentIndex = audioFiles.indexOf(currentSong.path);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
     let prevIndex;
 
     if (playMode === 'shuffle') {
-      prevIndex = Math.floor(Math.random() * audioFiles.length);
+      prevIndex = Math.floor(Math.random() * tracks.length);
     } else {
-      prevIndex = currentIndex === 0 ? audioFiles.length - 1 : currentIndex - 1;
+      prevIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
     }
-    handleSongChange(audioFiles[prevIndex]);
+    setCurrentTrackId(tracks[prevIndex]._id);
   };
 
   const formatTime = (time) => {
@@ -228,6 +220,8 @@ const AudioPlayer = ({ tracks }) => {
         <PlayerControls
           isPlaying={isPlaying}
           togglePlayPause={togglePlayPause}
+          handlePreviousSong={handlePreviousSong}
+          handleNextSong={handleNextSong}
           playMode={playMode}
           handlePlayModeChange={handlePlayModeChange}
           isFullscreen={isFullscreen}
@@ -252,7 +246,16 @@ const AudioPlayer = ({ tracks }) => {
           crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={(e) => setDuration(e.target.duration)}
-          onEnded={() => setIsPlaying(false)}
+          onEnded={() => {
+            setIsPlaying(false);
+            if (playMode === 'repeat') {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play();
+              setIsPlaying(true);
+            } else {
+              handleNextSong();
+            }
+          }}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         >

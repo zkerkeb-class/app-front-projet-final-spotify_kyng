@@ -6,7 +6,7 @@ const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) => (
     <input
       type="range"
       min="0"
-      max={duration || 100}
+      max={duration}
       value={currentTime}
       onChange={handleSeek}
       className="flex-grow h-1 bg-gray-700 rounded-full appearance-none cursor-pointer transition-all duration-300 ease-in-out"

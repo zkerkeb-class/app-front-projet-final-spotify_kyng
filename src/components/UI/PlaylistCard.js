@@ -1,32 +1,44 @@
 'use client';
 
-import { PlayIcon } from 'lucide-react';
+import { FaPlay } from 'react-icons/fa';
 import Image from 'next/image';
 import React from 'react';
 
-const PlaylistCard = ({ id, title, desc, img, onClick }) => {
+const PlaylistCard = ({ id, title, desc, img, onCardClick, onPlayClick }) => {
+  const handlePlayClick = (e) => {
+    e.stopPropagation(); // Empêche l'événement de clic de se propager à la carte
+    onPlayClick(id); // Appelle la fonction de lecture
+  };
+
   return (
-    <div className="p-5 relative rounded-xl text-white group hover:bg-zinc-800">
-      <div className="relative w-[150px] h-[150px] rounded-xl">
+    <div
+      className="w-[200px] p-4 bg-zinc-900 rounded-xl text-white cursor-pointer 
+                transition-all duration-300 hover:bg-zinc-800 shadow-lg hover:shadow-xl 
+                flex flex-col items-center space-y-3"
+      onClick={onCardClick}
+    >
+      {/* Image container avec un effet de zoom au survol */}
+      <div className="relative w-[160px] h-[160px] rounded-lg overflow-hidden group">
         <Image
-          src={img || '/api/placeholder/150/150'}
-          alt={title + ' cover image'}
-          className="w-full h-full object-cover rounded-xl"
+          src={img || '/api/placeholder/160/160'}
+          alt={`${title} cover image`}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           layout="fill"
         />
-      </div>
-      <div className="relative">
+        {/* Bouton Play flottant */}
         <button
-          className="absolute -top-10 right-2.5 bg-green-500 rounded-full opacity-0 transition-all duration-400 w-10 h-10 flex items-center justify-center group-hover:opacity-100 group-hover:-top-[60px]"
-          onClick={() => onClick(id)}
+          className="absolute bottom-2 right-2 bg-green-500 p-3 rounded-full 
+                     hover:bg-green-600 transition-transform transform hover:scale-110 
+                     shadow-lg opacity-0 group-hover:opacity-100 duration-300"
+          onClick={handlePlayClick}
         >
-          <PlayIcon className="w-6 h-6" />
+          <FaPlay size={20} />
         </button>
       </div>
-      <h4 className="mt-2.5 text-sm leading-5 whitespace-nowrap text-ellipsis overflow-hidden">
-        {title}
-      </h4>
-      <p className="mt-2.5 text-xs leading-5 font-semibold text-[#b3b3b3] line-clamp-2">{desc}</p>
+
+      {/* Texte */}
+      <h4 className="text-base font-semibold truncate w-full text-center">{title}</h4>
+      <p className="text-xs text-gray-400 truncate w-full text-center">{desc}</p>
     </div>
   );
 };
