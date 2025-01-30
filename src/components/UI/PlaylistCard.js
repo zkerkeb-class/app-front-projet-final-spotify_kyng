@@ -1,46 +1,43 @@
-'use client';
+"use client"
+import React, { useEffect, useState } from 'react';
+import { PlayIcon } from 'lucide-react';
+import NextImage from 'next/image';
+import { isValidImage } from '@/utils';
 
-import { FaPlay } from 'react-icons/fa';
-import Image from 'next/image';
-import React from 'react';
+const PlaylistCard = ({ title, desc, img }) => {
+const imgPlaceholder = 'https://placehold.co/200x200/jpeg';
 
-const PlaylistCard = ({ id, title, desc, img, onCardClick, onPlayClick }) => {
-  const handlePlayClick = (e) => {
-    e.stopPropagation(); // Empêche l'événement de clic de se propager à la carte
-    onPlayClick(id); // Appelle la fonction de lecture
-  };
+    const [isImageValid, setIsImageValid] = useState(false);
 
-  return (
-    <div
-      className="w-[200px] p-4 bg-zinc-900 rounded-xl text-white cursor-pointer 
-                transition-all duration-300 hover:bg-zinc-800 shadow-lg hover:shadow-xl 
-                flex flex-col items-center space-y-3"
-      onClick={onCardClick}
-    >
-      {/* Image container avec un effet de zoom au survol */}
-      <div className="relative w-[160px] h-[160px] rounded-lg overflow-hidden group">
-        <Image
-          src={img || '/api/placeholder/160/160'}
-          alt={`${title} cover image`}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-          layout="fill"
-        />
-        {/* Bouton Play flottant */}
-        <button
-          className="absolute bottom-2 right-2 bg-green-500 p-3 rounded-full 
-                     hover:bg-green-600 transition-transform transform hover:scale-110 
-                     shadow-lg opacity-0 group-hover:opacity-100 duration-300"
-          onClick={handlePlayClick}
-        >
-          <FaPlay size={20} />
-        </button>
+    useEffect(() => {
+      isValidImage(img).then(setIsImageValid);
+    }, [img]);
+
+    return (
+      <div className="p-5 relative rounded-xl w-48 flex flex-col items-center text-white group hover:bg-zinc-800">
+        <div className="relative w-36 h-36 rounded-xl">
+          <NextImage
+            src={isImageValid ? img : imgPlaceholder}
+            alt={title + ' cover image'}
+            className="w-full h-full object-cover rounded-xl"
+            layout="fill"
+          />
+        </div>
+        <div className="relative">
+          <button className="absolute -top-10 right-2.5 bg-green-500 rounded-full opacity-0 transition-all duration-400 w-10 h-10 flex items-center justify-center group-hover:opacity-100 group-hover:-top-[60px]">
+            <PlayIcon className="w-6 h-6" />
+          </button>
+        </div>
+        <div className='w-full'>
+          <h4 className="mt-2.5 text-sm leading-5 text-left text-wrap">
+            {title}
+          </h4>
+          <p className="mt-2.5 text-xs leading-5 font-semibold text-[#b3b3b3] line-clamp-2">
+            {desc}
+          </p>
+        </div>
       </div>
-
-      {/* Texte */}
-      <h4 className="text-base font-semibold truncate w-full text-center">{title}</h4>
-      <p className="text-xs text-gray-400 truncate w-full text-center">{desc}</p>
-    </div>
-  );
-};
+    )
+  };
 
 export default PlaylistCard;
