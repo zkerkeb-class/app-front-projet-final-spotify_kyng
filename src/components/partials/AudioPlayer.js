@@ -7,16 +7,39 @@ import PlayerControls from '../UI/PlayerControls';
 import SongInfo from '../UI/SongInfo';
 import ProgressBar from '../UI/ProgressBar';
 import Waveform from '../UI/Waveform';
-
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import {
+  setCurrentTrack,
+  setCurrentTime,
+  setDuration,
+  setVolume,
+  setIsMuted,
+  setIsFullscreen,
+  setIsLoading,
+} from '@/lib/features/player/playerSlice';
 const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurrentTrackId }) => {
-  const [currentSong, setCurrentSong] = useState(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
-  const [playMode, setPlayMode] = useState('normal');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [currentSong, setCurrentSong] = useState(null);
+  // const [currentTime, setCurrentTime] = useState(0);
+  // const [duration, setDuration] = useState(0);
+  // const [volume, setVolume] = useState(1);
+  // const [isMuted, setIsMuted] = useState(false);
+  // const [playMode, setPlayMode] = useState('normal');
+  // const [isFullscreen, setIsFullscreen] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    currentTrack,
+    currentTime,
+    duration,
+    volume,
+    isMuted,
+    playMode,
+    isFullscreen,
+    isLoading,
+    // tracks,
+    // isPlaying,
+  }= useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
@@ -35,13 +58,13 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, currentSong]);
+  }, [isPlaying, currentTrack]);
 
   useEffect(() => {
     const fetchAudioStream = async () => {
       if (!currentTrackId || !tracks || tracks.length === 0) return;
 
-      setIsLoading(true);
+      dispatch(setIsLoading(true));
 
       try {
         const selectedTrack = tracks.find((track) => track._id === currentTrackId);
@@ -61,18 +84,18 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
             ? await getAlbumById(selectedTrack.albumId)
             : selectedTrack.albumId;
 
-        setCurrentSong({
+        dispatch(setCurrentTrack({
           name: selectedTrack.title,
           path: audioUrl,
           duration: formatTime(selectedTrack.duration),
           artist: artist?.name || 'Unknown Artist',
           album: album?.title || 'Unknown Album',
           artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
-        });
+        }));
       } catch (error) {
         console.error('Error fetching audio stream:', error);
       } finally {
-        setIsLoading(false);
+        dispatch(setIsLoading(false));
       }
     };
 
@@ -81,12 +104,12 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(
+      dispatch(setIsFullscreen(
         document.fullscreenElement ||
           document.webkitFullscreenElement ||
           document.mozFullScreenElement ||
           document.msFullscreenElement
-      );
+      ));
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -136,31 +159,31 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   };
 
   const handleTimeUpdate = () => {
-    setCurrentTime(audioRef.current.currentTime);
+    dispatch(setCurrentTime(audioRef.current.currentTime));
   };
 
   const handleSeek = (e) => {
     const seekTime = parseFloat(e.target.value);
     audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
+    dispatch(setCurrentTime(seekTime));
   };
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     audioRef.current.volume = newVolume;
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
+    dispatch(setVolume(newVolume));
+    dispatch(setIsMuted(newVolume === 0));
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    dispatch(setIsMuted(!isMuted));
     audioRef.current.muted = !isMuted;
   };
 
   const handlePlayModeChange = () => {
     const modes = ['normal', 'repeat', 'shuffle'];
     const nextMode = modes[(modes.indexOf(playMode) + 1) % modes.length];
-    setPlayMode(nextMode);
+    dispatch(setPlayMode(nextMode));
   };
 
   const handleNextSong = () => {
@@ -197,16 +220,16 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
       className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-md mt-auto'}`}
     >
       <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
-        {currentSong && (
+        {currentTrack && (
           <SongInfo
-            currentSong={currentSong}
+            currentSong={currentTrack}
             isFullscreen={isFullscreen}
           />
         )}
-        {isFullscreen && currentSong && (
+        {isFullscreen && currentTrack && (
           <div className="flex-grow flex items-center justify-center mb-8">
             <Waveform
-              audioUrl={currentSong.path}
+              audioUrl={currentTrack.path}
               audioRef={audioRef}
               isFullscreen={isFullscreen}
             />
@@ -235,10 +258,10 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
         />
         <audio
           ref={audioRef}
-          src={currentSong?.path}
+          src={currentTrack?.path}
           crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={(e) => setDuration(e.target.duration)}
+          onLoadedMetadata={(e) => dispatch(setDuration(e.target.duration))}
           onEnded={() => {
             setIsPlaying(false);
             if (playMode === 'repeat') {
