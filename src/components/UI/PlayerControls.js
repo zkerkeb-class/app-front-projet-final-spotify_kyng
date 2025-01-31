@@ -127,7 +127,6 @@ const PlayerControls = ({
           {isFullscreen ? <FaCompress /> : <FaExpand />}
         </button>
       </div>
-
       {isLoading && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75">
           <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>

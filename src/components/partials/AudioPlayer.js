@@ -21,11 +21,11 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   const playerRef = useRef(null);
   const audioRef = useRef(null);
 
-  // Nouveau useEffect pour gérer la lecture automatique
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
         const playPromise = audioRef.current.play();
+
         if (playPromise !== undefined) {
           playPromise.catch((error) => {
             console.error('Erreur de lecture automatique:', error);
@@ -51,16 +51,15 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);
 
-        // Récupérer les informations complètes de l'artiste et de l'album si nécessaire
         const artist =
           typeof selectedTrack.artistId === 'string'
             ? await getArtistById(selectedTrack.artistId)
-            : selectedTrack.artistId; // Déjà un objet
+            : selectedTrack.artistId;
 
         const album =
           typeof selectedTrack.albumId === 'string'
             ? await getAlbumById(selectedTrack.albumId)
-            : selectedTrack.albumId; // Déjà un objet
+            : selectedTrack.albumId;
 
         setCurrentSong({
           name: selectedTrack.title,
@@ -167,7 +166,6 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   const handleNextSong = () => {
     const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
     let nextIndex;
-
     if (playMode === 'shuffle') {
       nextIndex = Math.floor(Math.random() * tracks.length);
     } else {
@@ -179,7 +177,6 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   const handlePreviousSong = () => {
     const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
     let prevIndex;
-
     if (playMode === 'shuffle') {
       prevIndex = Math.floor(Math.random() * tracks.length);
     } else {
@@ -197,7 +194,7 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   return (
     <div
       ref={playerRef}
-      className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-lg mt-auto'}`}
+      className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-md mt-auto'}`}
     >
       <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
         {currentSong && (
@@ -206,7 +203,6 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
             isFullscreen={isFullscreen}
           />
         )}
-
         {isFullscreen && currentSong && (
           <div className="flex-grow flex items-center justify-center mb-8">
             <Waveform
@@ -216,7 +212,6 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
             />
           </div>
         )}
-
         <PlayerControls
           isPlaying={isPlaying}
           togglePlayPause={togglePlayPause}
@@ -232,14 +227,12 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
           handleVolumeChange={handleVolumeChange}
           isLoading={isLoading}
         />
-
         <ProgressBar
           currentTime={currentTime}
           duration={duration}
           handleSeek={handleSeek}
           formatTime={formatTime}
         />
-
         <audio
           ref={audioRef}
           src={currentSong?.path}

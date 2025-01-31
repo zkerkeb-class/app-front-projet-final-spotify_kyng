@@ -1,10 +1,15 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { PlayIcon } from 'lucide-react';
+import { FaPlay } from 'react-icons/fa';
 import NextImage from 'next/image';
 import { isValidImage } from '@/utils';
 
-const PlaylistCard = ({ id, title, desc, img, onClick }) => {
+const PlaylistCard = ({ id, title, img, onCardClick, onPlayClick, desc }) => {
+  const handlePlayClick = (e) => {
+    e.stopPropagation();
+    onPlayClick(id);
+  };
+
   const imgPlaceholder = 'https://placehold.co/200x200/jpeg';
 
   const [isImageValid, setIsImageValid] = useState(false);
@@ -14,7 +19,10 @@ const PlaylistCard = ({ id, title, desc, img, onClick }) => {
   }, [img]);
 
   return (
-    <div className="p-5 relative rounded-xl w-48 flex flex-col items-center text-white group hover:bg-zinc-800">
+    <div
+      className="p-5 relative rounded-xl w-48 flex flex-col items-center text-white group hover:bg-zinc-500 dark:hover:bg-zinc-800 cursor-pointer"
+      onClick={onCardClick}
+    >
       <div className="relative w-36 h-36 rounded-xl">
         <NextImage
           src={isImageValid ? img : imgPlaceholder}
@@ -22,18 +30,21 @@ const PlaylistCard = ({ id, title, desc, img, onClick }) => {
           className="w-full h-full object-cover rounded-xl"
           layout="fill"
         />
-      </div>
-      <div className="relative">
         <button
-          className="absolute -top-10 right-2.5 bg-green-500 rounded-full opacity-0 transition-all duration-400 w-10 h-10 flex items-center justify-center group-hover:opacity-100 group-hover:-top-[60px]"
-          onClick={() => onClick(id)}
+          className="absolute bottom-2 right-2 bg-green-500 rounded-full w-10 h-10 flex 
+          items-center justify-center opacity-0 transition-opacity duration-300 
+          group-hover:opacity-100 hover:bg-green-600 shadow-lg"
+          onClick={handlePlayClick}
         >
-          <PlayIcon className="w-6 h-6" />
+          <FaPlay
+            size={15}
+            className="text-white"
+          />
         </button>
       </div>
-      <div className="w-full">
-        <h4 className="mt-2.5 text-sm leading-5 text-left text-wrap">{title}</h4>
-        <p className="mt-2.5 text-xs leading-5 font-semibold text-[#b3b3b3] line-clamp-2">{desc}</p>
+      <div className="w-full text-left">
+        <h4 className="mt-2.5 text-sm">{title}</h4>
+        <p className="text-sm text-zinc-700">{desc}</p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 
-const Waveform = ({ audioUrl, audioRef, isFullscreen }) => {
+const Waveform = ({ audioUrl, audioRef }) => {
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
   const [isLoading, setIsLoading] = useState(true);

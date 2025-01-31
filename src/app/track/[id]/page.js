@@ -6,10 +6,11 @@ import { getTrackById } from '@/services/track.service';
 import { getAlbumById } from '@/services/album.service';
 import { getArtistById } from '@/services/artist.service';
 import { FaPlay, FaPause } from 'react-icons/fa';
+import Link from 'next/link';
 import AudioPlayer from '@/components/partials/AudioPlayer';
 import Container from '@/components/UI/Container';
 
-const placeholderImage = 'https://placehold.co/200x200/jpeg';
+const img = 'https://placehold.co/200x200/jpeg';
 
 const TrackDetail = () => {
   const { id } = useParams();
@@ -81,53 +82,51 @@ const TrackDetail = () => {
   }
 
   return (
-    <Container>
-      <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white p-6 flex flex-col">
-        {/* Header avec effet flou progressif */}
-        <div className="relative w-full h-[400px] flex items-end">
-          <div
-            className="absolute inset-0 bg-cover bg-center blur-xl opacity-40"
-            style={{
-              backgroundImage: `url(${track.albumId?.image || placeholderImage})`,
-            }}
-          />
-          <div className="relative z-10 flex items-center gap-6 p-6 bg-gradient-to-b from-transparent to-white dark:to-black">
+    <div className="min-h-screen">
+      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b  dark:from-gray-800 dark:to-black from-white to-gray-800 p-6 rounded-t-lg shadow-lg">
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-white">
             <img
-              src={track.albumId?.image || placeholderImage}
-              alt="Album Cover"
-              className="w-40 h-40 rounded-lg shadow-lg"
+              src={track.albumId?.image || img}
+              alt={track.albumId?.image || img}
+              className="w-full h-full object-cover"
             />
-            <div>
-              <h2 className="text-5xl font-bold">{track.title}</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-                {track.artistId?.name || 'Artiste inconnu'} •{' '}
+          </div>
+          <div className="text-center sm:text-left">
+            <h2 className="text-5xl font-bold text-white">{track.title}</h2>
+            <p className="text-lg text-gray-300 mt-2">
+              <Link
+                href={`/artist/${track.artistId._id}`}
+                className="underline"
+              >
+                {track.artistId?.name || 'Artiste inconnu'}
+              </Link>
+              •
+              <Link
+                href={`/album/${track.albumId._id}`}
+                className="underline"
+              >
                 {track.albumId?.title || 'Album inconnu'}
-              </p>
-              <p className="text-lg text-gray-500 dark:text-gray-400">
-                {track.releaseYear} • {track.albumId?.genre || 'Genre inconnu'}
-              </p>
-            </div>
+              </Link>
+            </p>
+            <p className="text-lg text-gray-400">
+              {track.releaseYear} • {track.albumId?.genre || 'Genre inconnu'}
+            </p>
           </div>
         </div>
-
-        {/* Bouton Play/Pause centré */}
-        <div className="flex justify-start my-6">
+      </div>
+      <Container>
+        <div className="flex justify-start mt-8 ps-0.5">
           <button
-            className="bg-green-500 p-3 rounded-full hover:bg-green-600 transition-transform transform hover:scale-110 shadow-xl text-white"
+            className="bg-green-500 p-4 rounded-full hover:bg-green-600 transition-all transform hover:scale-110 shadow-xl text-white"
             onClick={() => handlePlayClick(track._id)}
           >
-            {isPlaying && currentTrackId === track._id ? (
-              <FaPause size={20} />
-            ) : (
-              <FaPlay size={20} />
-            )}
+            {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
           </button>
         </div>
-
-        {/* Détails du morceau */}
-        <div className="mt-6 p-6 bg-gray-100 dark:bg-zinc-800 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-3">Détails</h3>
-          <div className="text-gray-600 dark:text-gray-300 flex justify-between">
+        <div className="mt-8 p-6 bg-gray-800 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-white mb-4">Détails</h3>
+          <div className="text-gray-300 flex justify-between">
             <p>
               <strong>Durée :</strong> {formatDuration(track.duration)}
             </p>
@@ -135,23 +134,19 @@ const TrackDetail = () => {
               <strong>Popularité :</strong> {track.popularity}
             </p>
             <p>
-              <strong>Explicite :</strong> {track.isExplicit ? 'Oui' : 'Non'}
+              <strong>Nombre d'écoute : {track?.numberOfListens}</strong>
             </p>
           </div>
         </div>
-
-        {/* Paroles */}
-        <div className="mt-6 p-6 bg-gray-100 dark:bg-zinc-800 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-3">Paroles</h3>
-          <p className="italic text-gray-500 dark:text-gray-400">
+        <div className="mt-8 p-6 bg-gray-800 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-white mb-4">Paroles</h3>
+          <p className="italic text-gray-400">
             {track.lyrics ? track.lyrics : 'Paroles indisponibles'}
           </p>
         </div>
-
-        {/* Crédits */}
-        <div className="mt-6 p-6 bg-gray-100 dark:bg-zinc-800 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-3">Crédits</h3>
-          <div className="text-gray-600 dark:text-gray-300 space-y-2">
+        <div className="mt-8 p-6 bg-gray-800 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-white mb-4">Crédits</h3>
+          <div className="text-gray-300 space-y-2">
             <p>
               <strong>Producteur :</strong> {track.credits?.producer || 'Inconnu'}
             </p>
@@ -160,10 +155,8 @@ const TrackDetail = () => {
             </p>
           </div>
         </div>
-
-        {/* Lecteur Audio en bas */}
         {currentTrackId && (
-          <div className="mt-8">
+          <div>
             <AudioPlayer
               tracks={[track]}
               currentTrackId={currentTrackId}
@@ -173,8 +166,8 @@ const TrackDetail = () => {
             />
           </div>
         )}
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 };
 

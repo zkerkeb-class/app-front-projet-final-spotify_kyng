@@ -3,21 +3,21 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { CirclePlus, Home, LibraryBig, Search, Settings } from 'lucide-react';
 import NavItem from '@/components/UI/NavItem';
+
 const SideBar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-opacity-50 bg-zinc-800 rounded-lg py-5 px-2 min-w-60">
-      <nav className="flex  flex-col justify-between h-max">
+    <aside className="bg-zinc-700 dark:bg-zinc-800 rounded-lg py-5 px-2 min-w-60">
+      <nav className="flex flex-col justify-between h-max">
         <div className="flex flex-col gap-5">
-          <ul className="bg-zinc-800 rounded">
+          <ul className="bg-zinc-800 dark:bg-zinc-700 rounded">
             <NavItem
               url="/"
               isActive={pathname === '/'}
               icon={<Home />}
               name="Accueil"
             />
-
             <NavItem
               url="/search"
               isActive={pathname === '/search'}
@@ -25,15 +25,14 @@ const SideBar = () => {
               name="Rechercher"
             />
           </ul>
-          <ul className="bg-zinc-800 rounded">
-            <li className="text-zinc-400 flex items-center p-3 gap-3">
+          <ul className="bg-zinc-800 dark:bg-zinc-700 rounded">
+            <li className="text-zinc-400 dark:text-zinc-300 flex items-center p-3 gap-3">
               <LibraryBig />
               Bibliothèque
-              <button className="text-zinc-400 hover:text-white">
+              <button className="text-zinc-400 dark:text-zinc-300 hover:text-white">
                 <CirclePlus />
               </button>
             </li>
-
             <NavItem
               url="/playlist/liked"
               name="Titres likés"
@@ -47,14 +46,14 @@ const SideBar = () => {
               }
             />
           </ul>
-        <ul className="bg-zinc-800 rounded">
-          <NavItem
-            url="/settings"
-            name="Paramètres"
-            isActive={pathname === '/settings'}
-            icon={<Settings />}
-          />
-        </ul>
+          <ul className="bg-zinc-800 dark:bg-zinc-700 rounded">
+            <NavItem
+              url="/settings"
+              name="Paramètres"
+              isActive={pathname === '/settings'}
+              icon={<Settings />}
+            />
+          </ul>
         </div>
       </nav>
     </aside>

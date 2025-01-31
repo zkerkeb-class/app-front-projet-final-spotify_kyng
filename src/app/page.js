@@ -63,13 +63,11 @@ const Home = () => {
   };
 
   const handlePlayClick = (id) => {
-    // Si on clique sur la même piste
     if (currentTrackId === id) {
-      setIsPlaying(!isPlaying); // Inverse l'état de lecture
+      setIsPlaying(!isPlaying);
     } else {
-      // Si on clique sur une nouvelle piste
       setCurrentTrackId(id);
-      setIsPlaying(true); // Démarre automatiquement la lecture
+      setIsPlaying(true);
     }
   };
 
@@ -98,29 +96,24 @@ const Home = () => {
 
   return (
     <Container>
-      <h2 className="text-black dark:text-white text-4xl mb-10">Les playlists du moment</h2>
-      <h3 className="text-black dark:text-white text-2xl">Top 10 des artistes populaires</h3>
+      <h2 className=" text-4xl mb-10">Les playlists du moment</h2>
+      <h3 className=" text-2xl">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {topArtists &&
           topArtists.length > 0 &&
           topArtists.map((artist, index) => {
-            const artistId = artist._id || `artist-${index}`;
             return (
-              <li
-                key={artistId}
-                className="flex-none"
-              >
-                <ArtistCard
-                  title={artist.name}
-                  img={getImage(artist.images[0]?.path)}
-                  onCardClick={() => handleCardClick(artist._id, 'artist')}
-                />
-              </li>
+              <ArtistCard
+                key={artist._id || `artist-${index}`}
+                title={artist.name}
+                img={getImage(artist.images[0]?.path)}
+                desc={artist.totalListens}
+                onCardClick={() => handleCardClick(artist._id, 'artist')}
+              />
             );
           })}
       </HorizontalSlider>
-
-      <h3 className="text-black dark:text-white text-2xl mt-10">Top 10 des titres populaires</h3>
+      <h3 className=" text-2xl mt-10">Top 10 des derniers sons</h3>
       <HorizontalSlider>
         {topTracks &&
           topTracks.map((track, index) => (
@@ -128,34 +121,31 @@ const Home = () => {
               key={track._id || `track-${index}`}
               title={track.title}
               img={getImage(track.imagePath)}
-              desc={track.desc}
+              desc={track.releaseYear}
               onCardClick={() => handleCardClick(track._id, 'track')}
               onPlayClick={() => handlePlayClick(track._id)}
               isPlaying={isPlaying && currentTrackId === track._id}
             />
           ))}
       </HorizontalSlider>
-
-      <h3 className="text-black dark:text-white text-2xl mt-10">Top 10 des albums populaires</h3>
+      <h3 className=" text-2xl mt-10">Top 10 des albums récents</h3>
       <HorizontalSlider>
         {topAlbums &&
           topAlbums.map((album, index) => {
-            const albumId = album._id || `album-${index}`;
             return (
               <AlbumCard
-                key={albumId}
+                key={album._id || `album-${index}`}
                 title={album.title}
-                img={getImage(album.imagePath)}
-                desc={album.desc}
+                desc={album.artistId.name}
+                img={getImage(album.images[0].path)}
                 onCardClick={() => handleCardClick(album._id, 'album')}
               />
             );
           })}
       </HorizontalSlider>
-
       {currentTrackId && (
         <AudioPlayer
-          tracks={topTracks} // On passe toutes les pistes au lieu d'une seule
+          tracks={topTracks}
           currentTrackId={currentTrackId}
           isPlaying={isPlaying}
           setIsPlaying={setIsPlaying}

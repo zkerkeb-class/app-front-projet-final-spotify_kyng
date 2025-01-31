@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getAlbumById } from '@/services/album.service';
 import { getTracksByAlbum } from '@/services/track.service';
-import { FaPlay, FaPause, FaClock } from 'react-icons/fa'; // Importer les icônes
+import { FaPlay, FaPause, FaClock } from 'react-icons/fa';
 import AudioPlayer from '@/components/partials/AudioPlayer';
-import { Container } from 'lucide-react';
+import Link from 'next/link';
+import Container from '@/components/UI/Container';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
@@ -16,11 +17,11 @@ const AlbumDetail = () => {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false); // Etat pour savoir si la chanson est en lecture
-  const [currentTrackId, setCurrentTrackId] = useState(null); // Piste actuelle
-  const [profileBgColor, setProfileBgColor] = useState('black'); // Couleur de fond dynamique
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrackId, setCurrentTrackId] = useState(null);
 
   useEffect(() => {
+
     if (!id) return;
 
     const fetchAlbum = async () => {
@@ -33,8 +34,7 @@ const AlbumDetail = () => {
         const response = await getTracksByAlbum(albumID);
         setTracks(response.tracks || []);
       } catch (err) {
-        setError('Erreur lors du chargement des données');
-        console.error(err);
+        setError('Erreur lors du chargement des données.');
       } finally {
         setLoading(false);
       }
@@ -42,6 +42,12 @@ const AlbumDetail = () => {
 
     fetchAlbum();
   }, [id]);
+
+  useEffect(() => {
+    if (currentTrackId) {
+      setIsPlaying(true);
+    }
+  }, [currentTrackId]);
 
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60);
@@ -51,13 +57,24 @@ const AlbumDetail = () => {
 
   const handlePlayClick = (id) => {
     if (currentTrackId === id) {
-      // Si la chanson en lecture est déjà celle sur laquelle on a cliqué, on la met en pause
       setIsPlaying(!isPlaying);
     } else {
-      // Sinon, on change la chanson en lecture
       setCurrentTrackId(id);
-      setIsPlaying(true); // On commence la lecture
+      setIsPlaying(true);
     }
+  };
+
+  const getImage = (imagePath) => {
+    const isValidUrl = (url) => {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    return isValidUrl(imagePath) ? imagePath : img;
   };
 
   if (loading) {
@@ -77,43 +94,42 @@ const AlbumDetail = () => {
   }
 
   return (
-    <Container>
-      <div className="min-h-screen bg-black text-white p-6 flex flex-col">
-        {/* Header avec photo de profil et fond dynamique */}
-        <div
-          className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-gray-900 via-black to-black p-6"
-          style={{
-            backgroundColor: profileBgColor, // Applique la couleur extraite comme fond
-          }}
-        >
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white">
-              <img
-                src={album.image || img}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <h2 className="text-6xl font-bold">{album.title}</h2>
-              <p className="text-lg text-gray-300">By {album.artistId.name}</p>
-              <p className="text-lg text-gray-400">
-                Release Date: {new Date(album.releaseDate).toLocaleDateString()}
-              </p>
-            </div>
+    <div className="min-h-screen">
+      <div
+        className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-gray-900 via-black to-black p-6 rounded-t-lg shadow-lg"
+        style={{
+          backgroundImage: `url(${getImage(album.images?.[0]?.path)})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black opacity-60 z-0" />
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-white">
+            <img
+              src={getImage(album.image || img)}
+              alt="Album Cover"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-center sm:text-left">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{album.title}</h2>
+            <p className="text-lg text-gray-300">{album.artistId.name}</p>
+            <p className="text-sm text-gray-400">
+              {new Date(album.releaseDate).toLocaleDateString()}
+            </p>
           </div>
         </div>
-
-        {/* Pistes */}
+      </div>
+      <Container>
         <div className="p-6 flex-grow">
           <h3 className="text-3xl font-semibold mb-6">Pistes</h3>
-
           {tracks.length === 0 ? (
             <p className="text-center text-xl text-gray-400">Aucune piste disponible</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="text-zinc-400">
+                <thead>
                   <tr>
                     <th className="px-6 py-3 border-b border-gray-700">#</th>
                     <th className="px-6 py-3 border-b border-gray-700">Titre</th>
@@ -127,24 +143,32 @@ const AlbumDetail = () => {
                   {tracks.map((track, index) => (
                     <tr
                       key={track._id}
-                      className="hover:bg-zinc-800 cursor-pointer relative group"
+                      className="hover:bg-zinc-500 dark:hover:bg-zinc-800 cursor-pointer relative group"
                     >
-                      {/* Bouton de lecture / pause à la place de l'index */}
                       <td className="px-6 py-4">
                         <button
-                          className="bg-green-500 p-3 rounded-full hover:bg-green-600 transition-transform transform hover:scale-110"
-                          onClick={() => handlePlayClick(track._id)} // Remplacer onPlayClick par onClick
+                          className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
+                          onClick={() => handlePlayClick(track._id)}
                         >
                           {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
                         </button>
                       </td>
-                      {/* Titre de la piste */}
-                      <td className="px-6 py-4">{track.title}</td>
-                      {/* Artiste */}
                       <td className="px-6 py-4">
-                        {track.artistId ? track.artistId.name : 'Inconnu'}
+                        <Link
+                          href={`/track/${track._id}`}
+                          className="underline"
+                        >
+                          {track.title}
+                        </Link>
                       </td>
-                      {/* Durée */}
+                      <td className="px-6 py-4">
+                        <Link
+                          href={`/artist/${track.artistId ? track.artistId._id : ''}`}
+                          className="underline"
+                        >
+                          {track.artistId ? track.artistId.name : 'Inconnu'}
+                        </Link>
+                      </td>
                       <td className="px-6 py-4 flex items-center">
                         {formatDuration(track.duration)}
                       </td>
@@ -155,19 +179,18 @@ const AlbumDetail = () => {
             </div>
           )}
         </div>
+      </Container>
 
-        {/* Audio Player en bas de la page */}
-        {currentTrackId && (
-          <AudioPlayer
-            tracks={tracks}
-            currentTrackId={currentTrackId}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            setCurrentTrackId={setCurrentTrackId}
-          />
-        )}
-      </div>
-    </Container>
+      {currentTrackId && (
+        <AudioPlayer
+          tracks={tracks}
+          currentTrackId={currentTrackId}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          setCurrentTrackId={setCurrentTrackId}
+        />
+      )}
+    </div>
   );
 };
 
