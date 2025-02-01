@@ -7,9 +7,9 @@ import { getAlbumById } from '@/services/album.service';
 import { getArtistById } from '@/services/artist.service';
 import { FaPlay, FaPause } from 'react-icons/fa';
 import Link from 'next/link';
-import AudioPlayer from '@/components/partials/AudioPlayer';
 import Container from '@/components/UI/Container';
-
+import { setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 const img = 'https://placehold.co/200x200/jpeg';
 
 const TrackDetail = () => {
@@ -17,8 +17,8 @@ const TrackDetail = () => {
   const [track, setTrack] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackId, setCurrentTrackId] = useState(null);
+  const { isPlaying, currentTrack } = useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!id) return;
@@ -56,12 +56,12 @@ const TrackDetail = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handlePlayClick = (id) => {
-    if (currentTrackId === id) {
-      setIsPlaying(!isPlaying);
+  const handlePlayClick = (track) => {
+    if (currentTrack?.id === track._id) {
+      dispatch(setIsPlaying(!isPlaying));
     } else {
-      setCurrentTrackId(id);
-      setIsPlaying(true);
+      dispatch(setCurrentTrack(track));
+      dispatch(setIsPlaying(true));
     }
   };
 
@@ -119,9 +119,9 @@ const TrackDetail = () => {
         <div className="flex justify-start mt-8 ps-0.5">
           <button
             className="bg-green-500 p-4 rounded-full hover:bg-green-600 transition-all transform hover:scale-110 shadow-xl text-white"
-            onClick={() => handlePlayClick(track._id)}
+            onClick={() => handlePlayClick(track)}
           >
-            {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
+            {isPlaying && currentTrack?._id === track._id ? <FaPause /> : <FaPlay />}
           </button>
         </div>
         <div className="mt-8 p-6 bg-gray-800 rounded-lg shadow-md">
@@ -155,17 +155,6 @@ const TrackDetail = () => {
             </p>
           </div>
         </div>
-        {currentTrackId && (
-          <div>
-            <AudioPlayer
-              tracks={[track]}
-              currentTrackId={currentTrackId}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              setCurrentTrackId={setCurrentTrackId}
-            />
-          </div>
-        )}
       </Container>
     </div>
   );
