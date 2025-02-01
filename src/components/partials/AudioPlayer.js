@@ -209,6 +209,8 @@ const AudioPlayer = () => {
     <div
       ref={playerRef}
       className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-md mt-auto'}`}
+      role="region"
+      aria-label="Audio Player"
     >
       <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
         {currentTrack && (

@@ -41,12 +41,6 @@ const ArtistDetail = () => {
     fetchArtist();
   }, [id]);
 
-  const formatDuration = (duration) => {
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   const handleCardClick = (id, type) => {
     if (!id || !type) {
       console.error('Invalid ID or type');
@@ -71,18 +65,18 @@ const ArtistDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
-        <span className="text-xl">Chargement...</span>
+      <div className="flex justify-center items-center h-screen text-white">
+        <span className="text-xl animate-spin">Chargement...</span>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center text-xl">{error}</div>;
+    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
   }
 
   if (!artist) {
-    return <div className="text-gray-400 text-center">Artiste introuvable.</div>;
+    return <div className="text-gray-400 text-center text-xl py-4">Artiste introuvable.</div>;
   }
 
   return (
@@ -95,9 +89,9 @@ const ArtistDetail = () => {
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black opacity-50 z-0" />
+        <div className="absolute inset-0 bg-black opacity-60 z-0" />
         <div className="flex items-center gap-6 relative z-10">
-          <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg">
+          <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-white">
             <img
               src={artist.image || img}
               alt="Profile"
@@ -105,8 +99,8 @@ const ArtistDetail = () => {
             />
           </div>
           <div>
-            <h2 className="text-6xl font-bold text-white">{artist.name}</h2>
-            <p className="text-lg mt-2">{artist.genres}</p>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{artist.name}</h2>
+            <p className="text-lg text-gray-300">{artist.genres}</p>
           </div>
         </div>
       </div>
@@ -116,7 +110,7 @@ const ArtistDetail = () => {
           <h3 className="text-3xl font-semibold mb-6">Albums</h3>
 
           {albums.length === 0 ? (
-            <p className="text-center text-xl">Aucun album disponible</p>
+            <p className="text-center text-xl text-gray-400">Aucun album disponible</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 cursor-pointer">
               {albums.map((album) => (
@@ -124,6 +118,8 @@ const ArtistDetail = () => {
                   key={album._id}
                   className="max-w-xs mx-auto hover:scale-105 transform transition-all duration-300"
                   onClick={() => handleCardClick(album._id, 'album')}
+                  role="button"
+                  aria-label={`Album ${album.title}`}
                 >
                   <div className="relative rounded-lg overflow-hidden bg-gray-800">
                     <img
@@ -133,10 +129,11 @@ const ArtistDetail = () => {
                     />
                     <div className="absolute inset-0 bg-gray-800 opacity-50 z-10" />
                     <div className="absolute bottom-0 left-0 p-4 z-20">
-                      <h4 className="text-lg font-semibold text-white">{album.title} </h4>
+                      <h4 className="text-lg font-semibold text-white">{album.title}</h4>
                       <p className="text-sm text-zinc-500"></p>
                       <p className="text-sm text-zinc-400">
-                        {album.genre || 'Genre inconnu'} • {new Date(album.releaseDate).toLocaleDateString()}
+                        {album.genre || 'Genre inconnu'} •{' '}
+                        {new Date(album.releaseDate).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

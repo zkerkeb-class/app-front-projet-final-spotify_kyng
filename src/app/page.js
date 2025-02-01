@@ -13,8 +13,6 @@ import AlbumCard from '@/components/UI/AlbumCard';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 
-const img = 'https://placehold.co/200x200/jpeg';
-
 const Home = () => {
   const [topAlbums, setTopAlbums] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
@@ -37,7 +35,7 @@ const Home = () => {
         setTopAlbums(albums.data);
         setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
       } catch (err) {
-        setError('Error fetching data');
+        setError('Erreur lors du chargement des données');
         console.error(err);
       } finally {
         setLoading(false);
@@ -82,23 +80,27 @@ const Home = () => {
       }
     };
 
-    return isValidUrl(imagePath) ? imagePath : img;
+    return isValidUrl(imagePath) ? imagePath : 'default-image-path'; // Add a default image path
   };
 
   if (loading) {
-    return <div className="loading-spinner">Chargement...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-white">
+        <span className="text-xl animate-spin">Chargement...</span>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="error-message">Oups, une erreur s'est produite. Réessayez plus tard.</div>
+      <div className="text-red-500 text-center text-xl py-4">{error}</div>
     );
   }
 
   return (
     <Container>
-      <h2 className=" text-4xl mb-10">Les playlists du moment</h2>
-      <h3 className=" text-2xl">Top 10 des artistes populaires</h3>
+      <h2 className="text-4xl mb-10">Les playlists du moment</h2>
+      <h3 className="text-2xl">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {
           topArtists?.map((artist, index) => {
@@ -113,7 +115,7 @@ const Home = () => {
             );
           })}
       </HorizontalSlider>
-      <h3 className=" text-2xl mt-10">Top 10 des derniers sons</h3>
+      <h3 className="text-2xl mt-10">Top 10 des derniers sons</h3>
       <HorizontalSlider>
         {
           tracks?.map((track, index) => (
@@ -128,7 +130,7 @@ const Home = () => {
             />
           ))}
       </HorizontalSlider>
-      <h3 className=" text-2xl mt-10">Top 10 des albums récents</h3>
+      <h3 className="text-2xl mt-10">Top 10 des albums récents</h3>
       <HorizontalSlider>
         {topAlbums?.map((album, index) => {
             return (
