@@ -11,30 +11,39 @@ import { getTopTracks } from '@/services/track.service';
 import { getTopArtists } from '@/services/artist.service';
 import { useRouter } from 'next/navigation';
 import AlbumCard from '@/components/UI/AlbumCard';
-
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 const img = 'https://placehold.co/200x200/jpeg';
 
 const Home = () => {
   const [topAlbums, setTopAlbums] = useState([]);
   const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
-  const [currentTrackId, setCurrentTrackId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+
+  // const .id, se.id] = useState(null);
+  // const [isPlaying, setIsPlaying] = useState(false);
 
   const router = useRouter();
+  const {
+    isPlaying, currentTrack
+  } = useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const albums = await getTopAlbums();
+        // const albums = await getTopAlbums();
         const tracks = await getTopTracks();
-        const artistsResponse = await getTopArtists();
-        setTopAlbums(albums.data);
+        // const artistsResponse = await getTopArtists();
+        setTopAlbums([]);
         setTopTracks(tracks);
-        setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
+        dispatch(setTracks(tracks));
+        setTopArtists([]);
+        // setTopAlbums(albums.data);
+        // setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
       } catch (err) {
         setError('Error fetching data');
         console.error(err);
@@ -62,12 +71,13 @@ const Home = () => {
     }
   };
 
-  const handlePlayClick = (id) => {
-    if (currentTrackId === id) {
-      setIsPlaying(!isPlaying);
+  const handlePlayClick = (track) => {
+    if (currentTrack?.id === track._id) {
+      console.log(track._id);
+      dispatch(setIsPlaying(!isPlaying));
     } else {
-      setCurrentTrackId(id);
-      setIsPlaying(true);
+      dispatch(setCurrentTrack(track));
+      dispatch(setIsPlaying(true));
     }
   };
 
@@ -93,7 +103,7 @@ const Home = () => {
       <div className="error-message">Oups, une erreur s'est produite. Réessayez plus tard.</div>
     );
   }
-
+  
   return (
     <Container>
       <h2 className=" text-4xl mb-10">Les playlists du moment</h2>
@@ -123,8 +133,8 @@ const Home = () => {
               img={getImage(track.imagePath)}
               desc={track.releaseYear}
               onCardClick={() => handleCardClick(track._id, 'track')}
-              onPlayClick={() => handlePlayClick(track._id)}
-              isPlaying={isPlaying && currentTrackId === track._id}
+              onPlayClick={() => handlePlayClick(track)}
+              isPlaying={isPlaying && currentTrack?.id === track._id}
             />
           ))}
       </HorizontalSlider>
@@ -143,14 +153,8 @@ const Home = () => {
             );
           })}
       </HorizontalSlider>
-      {currentTrackId && (
-        <AudioPlayer
-          tracks={topTracks}
-          currentTrackId={currentTrackId}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          setCurrentTrackId={setCurrentTrackId}
-        />
+      {currentTrack && (
+        <AudioPlayer />
       )}
     </Container>
   );

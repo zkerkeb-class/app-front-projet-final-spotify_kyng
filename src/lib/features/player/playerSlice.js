@@ -56,5 +56,7 @@ export const {
   setIsMuted,
   setIsFullscreen,
   setIsLoading,
+    setTracks,
+    setIsPlaying,
 } = playerSlice.actions;
 export default playerSlice.reducer;
