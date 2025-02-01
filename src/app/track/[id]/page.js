@@ -10,8 +10,6 @@ import Link from 'next/link';
 import AudioPlayer from '@/components/partials/AudioPlayer';
 import Container from '@/components/UI/Container';
 
-const img = 'https://placehold.co/200x200/jpeg';
-
 const TrackDetail = () => {
   const { id } = useParams();
   const [track, setTrack] = useState(null);
@@ -67,33 +65,26 @@ const TrackDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
-        <span className="text-xl">Chargement...</span>
+      <div className="flex justify-center items-center h-screen text-white">
+        <span className="text-xl animate-spin">Chargement...</span>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center text-xl">{error}</div>;
+    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
   }
 
   if (!track) {
-    return <div className="text-gray-400 text-center">Piste introuvable.</div>;
+    return <div className="text-gray-400 text-center text-xl py-4">Piste introuvable.</div>;
   }
 
   return (
     <div className="min-h-screen">
-      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b  dark:from-gray-800 dark:to-black from-white to-gray-800 p-6 rounded-t-lg shadow-lg">
+      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-gray-900 via-black to-black p-6 rounded-t-lg shadow-lg">
         <div className="flex items-center gap-6 relative z-10">
-          <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-white">
-            <img
-              src={track.albumId?.image || img}
-              alt={track.albumId?.image || img}
-              className="w-full h-full object-cover"
-            />
-          </div>
           <div className="text-center sm:text-left">
-            <h2 className="text-5xl font-bold text-white">{track.title}</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{track.title}</h2>
             <p className="text-lg text-gray-300 mt-2">
               <Link
                 href={`/artist/${track.artistId._id}`}
@@ -109,7 +100,7 @@ const TrackDetail = () => {
                 {track.albumId?.title || 'Album inconnu'}
               </Link>
             </p>
-            <p className="text-lg text-gray-400">
+            <p className="text-sm text-gray-400">
               {track.releaseYear} • {track.albumId?.genre || 'Genre inconnu'}
             </p>
           </div>
@@ -120,6 +111,7 @@ const TrackDetail = () => {
           <button
             className="bg-green-500 p-4 rounded-full hover:bg-green-600 transition-all transform hover:scale-110 shadow-xl text-white"
             onClick={() => handlePlayClick(track._id)}
+            aria-label={isPlaying && currentTrackId === track._id ? 'Pause' : 'Lecture'}
           >
             {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
           </button>
@@ -134,7 +126,7 @@ const TrackDetail = () => {
               <strong>Popularité :</strong> {track.popularity}
             </p>
             <p>
-              <strong>Nombre d'écoute : {track?.numberOfListens}</strong>
+              <strong>Nombre d'écoute :</strong> {track?.numberOfListens}
             </p>
           </div>
         </div>

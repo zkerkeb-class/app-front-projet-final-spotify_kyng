@@ -21,7 +21,6 @@ const AlbumDetail = () => {
   const [currentTrackId, setCurrentTrackId] = useState(null);
 
   useEffect(() => {
-
     if (!id) return;
 
     const fetchAlbum = async () => {
@@ -79,18 +78,18 @@ const AlbumDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
-        <span className="text-xl">Chargement...</span>
+      <div className="flex justify-center items-center h-screen text-white">
+        <span className="text-xl animate-spin">Chargement...</span>
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center text-xl">{error}</div>;
+    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
   }
 
   if (!album) {
-    return <div className="text-gray-400 text-center">Album introuvable.</div>;
+    return <div className="text-gray-400 text-center text-xl py-4">Album introuvable.</div>;
   }
 
   return (
@@ -128,14 +127,22 @@ const AlbumDetail = () => {
             <p className="text-center text-xl text-gray-400">Aucune piste disponible</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
+              <table
+                className="w-full text-sm text-left"
+                role="table"
+                aria-label="List of Tracks"
+              >
                 <thead>
                   <tr>
                     <th className="px-6 py-3 border-b border-gray-700">#</th>
                     <th className="px-6 py-3 border-b border-gray-700">Titre</th>
                     <th className="px-6 py-3 border-b border-gray-700">Artiste</th>
                     <th className="px-6 py-3 border-b border-gray-700">
-                      <FaClock className="mr-2" />
+                      <FaClock
+                        className="mr-2"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">Durée</span>
                     </th>
                   </tr>
                 </thead>
@@ -149,6 +156,9 @@ const AlbumDetail = () => {
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
                           onClick={() => handlePlayClick(track._id)}
+                          aria-label={
+                            isPlaying && currentTrackId === track._id ? 'Pause' : 'Lecture'
+                          }
                         >
                           {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
                         </button>
@@ -157,6 +167,7 @@ const AlbumDetail = () => {
                         <Link
                           href={`/track/${track._id}`}
                           className="underline"
+                          aria-label={`Track ${track.title}`}
                         >
                           {track.title}
                         </Link>
@@ -165,13 +176,12 @@ const AlbumDetail = () => {
                         <Link
                           href={`/artist/${track.artistId ? track.artistId._id : ''}`}
                           className="underline"
+                          aria-label={`Artist ${track.artistId ? track.artistId.name : 'Inconnu'}`}
                         >
                           {track.artistId ? track.artistId.name : 'Inconnu'}
                         </Link>
                       </td>
-                      <td className="px-6 py-4 flex items-center">
-                        {formatDuration(track.duration)}
-                      </td>
+                      <td className="px-6 py-4">{formatDuration(track.duration)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -180,7 +190,6 @@ const AlbumDetail = () => {
           )}
         </div>
       </Container>
-
       {currentTrackId && (
         <AudioPlayer
           tracks={tracks}

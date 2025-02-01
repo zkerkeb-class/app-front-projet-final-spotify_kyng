@@ -14,7 +14,7 @@ export const metadata = {
   icons: {
     icon: '/spotify_logo.png',
   },
-};
+}
 
 export default function RootLayout({ children }) {
   return (
@@ -27,9 +27,9 @@ export default function RootLayout({ children }) {
       </Head>
       <body className={`h-screen ${inter.className} overflow-x-hidden flex flex-col dark:bg-black`}>
         <Header />
-        <div className="flex gap-2 flex-1">
+        <div className="flex flex-col gap-2 flex-1 lg:flex-row">
           <SideBar />
-          <main className="flex-1 overflow-auto">{children}</main>
+          <main className="flex-1 overflow-auto" aria-label="Main Content Area">{children}</main>
         </div>
       </body>
     </html>
