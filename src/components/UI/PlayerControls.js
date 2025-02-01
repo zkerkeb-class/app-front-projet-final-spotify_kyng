@@ -12,6 +12,11 @@ import {
   FaVolumeUp,
   FaVolumeMute,
 } from 'react-icons/fa';
+import { IoShareOutline } from "react-icons/io5";
+import { IoMdPeople } from "react-icons/io";
+import { useDispatch, useSelector } from 'react-redux';
+import { setSessionId, setSessionUrl } from '@/lib/features/jam/jamSlice';
+import { createJamSession } from '@/services/jam.service';
 
 const PlayerControls = ({
   isPlaying,
@@ -30,7 +35,11 @@ const PlayerControls = ({
 }) => {
   const [localVolume, setLocalVolume] = useState(initialVolume);
   const [prevVolume, setPrevVolume] = useState(initialVolume);
-
+  
+  const dispatch = useDispatch();
+  const { currentTrack } = useSelector((state) => state.player);
+const [isJamming, setIsJamming] = useState(false);
+const [isInviting, setIsInviting] = useState(false);
   useEffect(() => {
     setLocalVolume(initialVolume);
   }, [initialVolume, isMuted]);
@@ -51,6 +60,22 @@ const PlayerControls = ({
     const newVolume = event.target.value;
     setLocalVolume(newVolume);
     handleVolumeChange(event);
+  };
+
+  const launchJam = async () => {
+ try {
+  const jamSession = await createJamSession();
+  dispatch(setSessionId(jamSession.id));
+  dispatch(setSessionUrl(jamSession.shareUrl));
+  
+ } catch (error) {
+     console.error("Erreur lors de la création de la session de jam :", error);
+  
+ }
+  }
+
+  const handleInviteClick = () => {
+    setIsInviting(!isInviting);
   };
 
   return (
@@ -99,6 +124,33 @@ const PlayerControls = ({
         >
           <FaForward />
         </button>
+     { currentTrack&&    <button className={'text-green-500  hover:text-green-300'} onClick={launchJam}>
+          <IoMdPeople />
+        </button>}
+        {isJamming && (
+          <div className="absolute top-0 left-0 bg-gray-900 bg-opacity-75 p-4 rounded-lg w-full">
+            <span className="text-white">Inviter des personnes à rejoindre votre Jam</span>
+            <button
+              onClick={handleInviteClick}
+              className="flex items-center gap-1 p-1 rounded-full text-black bg-green-500 hover:bg-green-300"
+            >
+              <IoShareOutline />
+              Partager le lien
+            </button>
+
+            {isInviting && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  className="p-2 bg-white rounded-lg"
+                  value={inviteLink}
+                  readOnly
+                />
+                <button className="ml-2 p-2 bg-blue-500 text-white rounded-lg">Copier le lien</button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">

@@ -212,7 +212,7 @@ const AudioPlayer = () => {
       role="region"
       aria-label="Audio Player"
     >
-      <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
+      <div className={`flex flex-col  ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
         {currentTrack && (
           <SongInfo
             currentSong={currentTrack}
@@ -228,21 +228,23 @@ const AudioPlayer = () => {
             />
           </div>
         )}
-        <PlayerControls
-          isPlaying={isPlaying}
-          togglePlayPause={togglePlayPause}
-          handlePreviousSong={handlePreviousSong}
-          handleNextSong={handleNextSong}
-          playMode={playMode}
-          handlePlayModeChange={handlePlayModeChange}
-          isFullscreen={isFullscreen}
-          toggleFullscreen={toggleFullscreen}
-          isMuted={isMuted}
-          toggleMute={toggleMute}
-          volume={volume}
-          handleVolumeChange={handleVolumeChange}
-          isLoading={isLoading}
-        />
+        
+          <PlayerControls
+            isPlaying={isPlaying}
+            togglePlayPause={togglePlayPause}
+            handlePreviousSong={handlePreviousSong}
+            handleNextSong={handleNextSong}
+            playMode={playMode}
+            handlePlayModeChange={handlePlayModeChange}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
+            isMuted={isMuted}
+            toggleMute={toggleMute}
+            volume={volume}
+            handleVolumeChange={handleVolumeChange}
+            isLoading={isLoading}
+          />
+       
         <ProgressBar
           currentTime={currentTime}
           duration={duration}
