@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import AudioPlayer from '@/components/partials/AudioPlayer';
 import ArtistCard from '@/components/UI/ArtistCard';
 import Container from '@/components/UI/Container';
 import HorizontalSlider from '@/components/UI/HorizontalSlider';
@@ -11,27 +10,29 @@ import { getTopTracks } from '@/services/track.service';
 import { getTopArtists } from '@/services/artist.service';
 import { useRouter } from 'next/navigation';
 import AlbumCard from '@/components/UI/AlbumCard';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 
 const Home = () => {
   const [topAlbums, setTopAlbums] = useState([]);
-  const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
-  const [currentTrackId, setCurrentTrackId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
   const router = useRouter();
+  const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const albums = await getTopAlbums();
-        const tracks = await getTopTracks();
-        const artistsResponse = await getTopArtists();
+        const [albums, tracks, artistsResponse] = await Promise.all([
+          getTopAlbums(),
+          getTopTracks(),
+          getTopArtists(),
+        ]);
+        dispatch(setTracks(tracks));
         setTopAlbums(albums.data);
-        setTopTracks(tracks);
         setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
       } catch (err) {
         setError('Erreur lors du chargement des données');
@@ -60,12 +61,12 @@ const Home = () => {
     }
   };
 
-  const handlePlayClick = (id) => {
-    if (currentTrackId === id) {
-      setIsPlaying(!isPlaying);
+  const handlePlayClick = (track) => {
+    if (currentTrack?.id === track._id) {
+      dispatch(setIsPlaying(!isPlaying));
     } else {
-      setCurrentTrackId(id);
-      setIsPlaying(true);
+      dispatch(setCurrentTrack(track));
+      dispatch(setIsPlaying(true));
     }
   };
 
@@ -101,9 +102,8 @@ const Home = () => {
       <h2 className="text-4xl mb-10">Les playlists du moment</h2>
       <h3 className="text-2xl">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
-        {topArtists &&
-          topArtists.length > 0 &&
-          topArtists.map((artist, index) => {
+        {
+          topArtists?.map((artist, index) => {
             return (
               <ArtistCard
                 key={artist._id || `artist-${index}`}
@@ -117,23 +117,22 @@ const Home = () => {
       </HorizontalSlider>
       <h3 className="text-2xl mt-10">Top 10 des derniers sons</h3>
       <HorizontalSlider>
-        {topTracks &&
-          topTracks.map((track, index) => (
+        {
+          tracks?.map((track, index) => (
             <PlaylistCard
               key={track._id || `track-${index}`}
               title={track.title}
               img={getImage(track.imagePath)}
               desc={track.releaseYear}
               onCardClick={() => handleCardClick(track._id, 'track')}
-              onPlayClick={() => handlePlayClick(track._id)}
-              isPlaying={isPlaying && currentTrackId === track._id}
+              onPlayClick={() => handlePlayClick(track)}
+              isPlaying={isPlaying && currentTrack?.id === track._id}
             />
           ))}
       </HorizontalSlider>
       <h3 className="text-2xl mt-10">Top 10 des albums récents</h3>
       <HorizontalSlider>
-        {topAlbums &&
-          topAlbums.map((album, index) => {
+        {topAlbums?.map((album, index) => {
             return (
               <AlbumCard
                 key={album._id || `album-${index}`}
@@ -145,15 +144,6 @@ const Home = () => {
             );
           })}
       </HorizontalSlider>
-      {currentTrackId && (
-        <AudioPlayer
-          tracks={topTracks}
-          currentTrackId={currentTrackId}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          setCurrentTrackId={setCurrentTrackId}
-        />
-      )}
     </Container>
   );
 };
