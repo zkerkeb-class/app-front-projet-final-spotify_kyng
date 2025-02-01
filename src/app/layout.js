@@ -5,6 +5,7 @@ import Jam from '@/components/partials/Jam';
 import Header from '@/components/partials/Header';
 import Head from 'next/head';
 import StoreProvider from './StoreProvider';
+import AudioPlayer from '@/components/partials/AudioPlayer';
 const inter = Inter({
   subsets: ['latin'],
 });
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
             <SideBar />
             <main className="flex-1 overflow-auto">{children}</main>
           </div>
+          <AudioPlayer />
         </body>
       </html>
     </StoreProvider>

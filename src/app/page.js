@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import AudioPlayer from '@/components/partials/AudioPlayer';
 import ArtistCard from '@/components/UI/ArtistCard';
 import Container from '@/components/UI/Container';
 import HorizontalSlider from '@/components/UI/HorizontalSlider';
@@ -13,37 +12,30 @@ import { useRouter } from 'next/navigation';
 import AlbumCard from '@/components/UI/AlbumCard';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
+
 const img = 'https://placehold.co/200x200/jpeg';
 
 const Home = () => {
   const [topAlbums, setTopAlbums] = useState([]);
-  const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // const .id, se.id] = useState(null);
-  // const [isPlaying, setIsPlaying] = useState(false);
-
   const router = useRouter();
-  const {
-    isPlaying, currentTrack
-  } = useAppSelector((state) => state.player);
+  const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // const albums = await getTopAlbums();
-        const tracks = await getTopTracks();
-        // const artistsResponse = await getTopArtists();
-        setTopAlbums([]);
-        setTopTracks(tracks);
+        const [albums, tracks, artistsResponse] = await Promise.all([
+          getTopAlbums(),
+          getTopTracks(),
+          getTopArtists(),
+        ]);
         dispatch(setTracks(tracks));
-        setTopArtists([]);
-        // setTopAlbums(albums.data);
-        // setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
+        setTopAlbums(albums.data);
+        setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
       } catch (err) {
         setError('Error fetching data');
         console.error(err);
@@ -73,7 +65,6 @@ const Home = () => {
 
   const handlePlayClick = (track) => {
     if (currentTrack?.id === track._id) {
-      console.log(track._id);
       dispatch(setIsPlaying(!isPlaying));
     } else {
       dispatch(setCurrentTrack(track));
@@ -103,15 +94,14 @@ const Home = () => {
       <div className="error-message">Oups, une erreur s'est produite. Réessayez plus tard.</div>
     );
   }
-  
+
   return (
     <Container>
       <h2 className=" text-4xl mb-10">Les playlists du moment</h2>
       <h3 className=" text-2xl">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
-        {topArtists &&
-          topArtists.length > 0 &&
-          topArtists.map((artist, index) => {
+        {
+          topArtists?.map((artist, index) => {
             return (
               <ArtistCard
                 key={artist._id || `artist-${index}`}
@@ -125,8 +115,8 @@ const Home = () => {
       </HorizontalSlider>
       <h3 className=" text-2xl mt-10">Top 10 des derniers sons</h3>
       <HorizontalSlider>
-        {topTracks &&
-          topTracks.map((track, index) => (
+        {
+          tracks?.map((track, index) => (
             <PlaylistCard
               key={track._id || `track-${index}`}
               title={track.title}
@@ -140,8 +130,7 @@ const Home = () => {
       </HorizontalSlider>
       <h3 className=" text-2xl mt-10">Top 10 des albums récents</h3>
       <HorizontalSlider>
-        {topAlbums &&
-          topAlbums.map((album, index) => {
+        {topAlbums?.map((album, index) => {
             return (
               <AlbumCard
                 key={album._id || `album-${index}`}
@@ -153,9 +142,6 @@ const Home = () => {
             );
           })}
       </HorizontalSlider>
-      {currentTrack && (
-        <AudioPlayer />
-      )}
     </Container>
   );
 };

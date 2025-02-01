@@ -8,7 +8,6 @@ const initialState = {
   volume: 1,
   isMuted: false,
   playMode: 'normal',
-  isFullscreen: false,
   isLoading: false,
   tracks: [],
   isPlaying: false,
@@ -33,9 +32,6 @@ export const playerSlice = createSlice({
     setIsMuted: (state, action) => {
       state.isMuted = action.payload;
     },
-    setIsFullscreen: (state, action) => {
-      state.isFullscreen = action.payload;
-    },
     setIsLoading: (state, action) => {
       state.isLoading = action.payload;
     },
@@ -54,7 +50,6 @@ export const {
   setDuration,
   setVolume,
   setIsMuted,
-  setIsFullscreen,
   setIsLoading,
     setTracks,
     setIsPlaying,

@@ -14,11 +14,11 @@ import {
   setDuration,
   setVolume,
   setIsMuted,
-  setIsFullscreen,
   setIsLoading,
   setIsPlaying,
 } from '@/lib/features/player/playerSlice';
 const AudioPlayer = () => {
+  const [isFullscreen, setIsFullscreen] = useState()
   const {
     currentTrack,
     currentTime,
@@ -26,7 +26,6 @@ const AudioPlayer = () => {
     volume,
     isMuted,
     playMode,
-    isFullscreen,
     isLoading,
     tracks,
     isPlaying,
@@ -35,8 +34,6 @@ const AudioPlayer = () => {
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
-
-  console.log(currentTrack);
   
   useEffect(() => {
     if (audioRef.current) {
@@ -56,12 +53,12 @@ const AudioPlayer = () => {
 
   useEffect(() => {
     const fetchAudioStream = async () => {
-      if (!currentTrack._id || !tracks?.length) return;
+      if (!currentTrack?._id || !tracks?.length) return;
 
       dispatch(setIsLoading(true));
 
       try {
-        const selectedTrack = tracks.find((track) => track._id === currentTrack._id);
+        const selectedTrack = tracks.find((track) => track._id === currentTrack?._id);
 
         console.log('selectedTrack : ' + selectedTrack);
         if (!selectedTrack) throw new Error('Track not found');
@@ -94,16 +91,16 @@ const AudioPlayer = () => {
     };
 
     fetchAudioStream();
-  }, [currentTrack._id, tracks]);
+  }, [currentTrack?._id, tracks]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      dispatch(setIsFullscreen(
+      setIsFullscreen(
         document.fullscreenElement ||
           document.webkitFullscreenElement ||
           document.mozFullScreenElement ||
           document.msFullscreenElement
-      ));
+      );
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -181,7 +178,7 @@ const AudioPlayer = () => {
   };
 
   const handleNextSong = () => {
-    const currentIndex = tracks.findIndex((track) => track._id === currentTrack._id);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrack?._id);
     let nextIndex;
     if (playMode === 'shuffle') {
       nextIndex = Math.floor(Math.random() * tracks.length);
@@ -192,7 +189,7 @@ const AudioPlayer = () => {
   };
 
   const handlePreviousSong = () => {
-    const currentIndex = tracks.findIndex((track) => track._id === currentTrack._id);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrack?._id);
     let prevIndex;
     if (playMode === 'shuffle') {
       prevIndex = Math.floor(Math.random() * tracks.length);
@@ -223,7 +220,7 @@ const AudioPlayer = () => {
         {isFullscreen && currentTrack && (
           <div className="flex-grow flex items-center justify-center mb-8">
             <Waveform
-              audioUrl={currentTrack.path}
+              audioUrl={currentTrack?.path}
               audioRef={audioRef}
               isFullscreen={isFullscreen}
             />
