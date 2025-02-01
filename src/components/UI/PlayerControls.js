@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import {
   FaPlay,
@@ -53,7 +54,7 @@ const PlayerControls = ({
   };
 
   return (
-    <div className="flex justify-between pb-2 rounded-lg font-helvetica-neue text-white">
+    <div className="flex justify-between pb-2 rounded-lg text-white">
       <div className="flex items-center justify-center space-x-4">
         <button
           onClick={handlePlayModeChange}
@@ -129,7 +130,7 @@ const PlayerControls = ({
       </div>
       {isLoading && (
         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75">
-          <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
+          <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin" />
         </div>
       )}
     </div>

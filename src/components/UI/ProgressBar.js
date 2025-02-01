@@ -2,7 +2,7 @@ import React from 'react';
 
 const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) => (
   <div className="flex items-center space-x-2">
-    <span className="text-gray-400 text-sm">{formatTime(currentTime)}</span>
+    <span className="text-gray-400 text-sm" aria-label="Current time">{formatTime(currentTime)}</span>
     <input
       type="range"
       min="0"
@@ -13,8 +13,9 @@ const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) => (
       style={{
         background: `linear-gradient(to right, #1db954 ${(currentTime / duration) * 100}%, #4b4b4b 0%)`,
       }}
+      aria-label="Progress bar"
     />
-    <span className="text-gray-400 text-sm">{formatTime(duration)}</span>
+    <span className="text-gray-400 text-sm" aria-label="Duration">{formatTime(duration)}</span>
   </div>
 );
 

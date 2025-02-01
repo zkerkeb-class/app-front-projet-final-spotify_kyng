@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 
@@ -67,11 +69,12 @@ const Waveform = ({ audioUrl, audioRef }) => {
   return (
     <div className="w-full px-4 py-2">
       {isLoading && (
-        <div className="text-center text-gray-500 mb-2">Chargement de la forme d'onde...</div>
+        <div className="text-center text-gray-500 mb-2" role="alert" aria-live="assertive">Chargement de la forme d'onde...</div>
       )}
       <div
         ref={waveformRef}
         className={`w-full rounded-lg bg-[#1f1f1f] p-2 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        aria-hidden={isLoading}
       />
     </div>
   );

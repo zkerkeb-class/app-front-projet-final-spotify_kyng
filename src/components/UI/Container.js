@@ -8,6 +8,8 @@ const Container = ({ children, gradFrom, gradTo, textColor, darkTextColor }) => 
        ${gradTo || 'to-zinc-700 dark:to-black'} 
        ${textColor || 'text-gray-800 dark:text-gray-100'} 
        ${darkTextColor || ''}`}
+      role="region"
+      aria-label="Content container"
     >
       {children}
     </section>
