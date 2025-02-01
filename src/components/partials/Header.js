@@ -9,20 +9,22 @@ const Header = () => {
   const isOnline = useNetwork();
 
   return (
-    <header className="h-16 w-screen text-zinc-400 flex items-center justify-between px-4">
-      <Image
-        src="/spotify_logo.png"
-        alt="Spotify Logo"
-        width={24}
-        height={24}
-      />
-      <SearchBar />
+    <header className="h-16 w-full text-zinc-400 flex items-center justify-between px-4 lg:px-8">
+      <a href="/" aria-label="Retour à l'accueil">
+        <Image
+          src="/spotify_logo.png"
+          alt="Spotify Logo"
+          width={24}
+          height={24}
+        />
+      </a>
+      <SearchBar aria-label="Barre de recherche" />
       {isOnline ? (
-        <div className="bg-green-500 text-white rounded-full p-1">
+        <div className="bg-green-500 text-white rounded-full p-1" role="status" aria-label="Connecté">
           <Wifi />
         </div>
       ) : (
-        <div className="bg-red-500 text-white rounded-full p-1">
+        <div className="bg-red-500 text-white rounded-full p-1" role="status" aria-label="Déconnecté">
           <WifiOff />
         </div>
       )}
