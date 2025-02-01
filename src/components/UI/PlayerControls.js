@@ -67,6 +67,7 @@ const [isInviting, setIsInviting] = useState(false);
   const jamSession = await createJamSession();
   dispatch(setSessionId(jamSession.id));
   dispatch(setSessionUrl(jamSession.shareUrl));
+  localStorage.setItem('jamSessionId', jamSession.id);
   
  } catch (error) {
      console.error("Erreur lors de la création de la session de jam :", error);

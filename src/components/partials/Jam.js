@@ -1,14 +1,28 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { FaPause, FaPlay, FaUser } from 'react-icons/fa';
-import { formatDuration } from '@/utils';
 import Link from 'next/link';
+import { io } from "socket.io-client";
+import { formatDuration } from '@/utils';
 
 const Jam = () => {
   const [copied, setCopied] = useState(false);
+  const [socket, setSocket] = useState(null);
   const { tracks, isPlaying, currentTrack } = useAppSelector((state) => state.player);
   const { users, sessionUrl, sessionId } = useAppSelector((state) => state.jam);
+  const dispatch = useAppDispatch();
+
+
+  useEffect(()=>{
+    const newSocket = io(process.env.NEXT_PUBLIC_API_URL);
+    setSocket(newSocket);
+    newSocket.emit('room-state', { roomId: sessionId, userId: localStorage.getItem('userId') });
+ 
+    return () => {
+      newSocket.disconnect();
+    }
+  },[])
 
   const copyToClipboard = async (url) => {
     try {
@@ -20,9 +34,8 @@ const Jam = () => {
     }
   };
 
-  const dispatch = useAppDispatch();
   const handleShareClick = () => {
-    const shareUrl = ""
+    const shareUrl = `${window.location.origin}/room/${sessionId}`;
     copyToClipboard(shareUrl); 
     console.log('Inviter');
 
@@ -39,14 +52,12 @@ const Jam = () => {
     }
   };
 
-  console.log('Jam', {
-    sessionId,
-    sessionUrl,
-  });
-  
+  console.log('Jam session ID:', sessionId);
+
   if (sessionId === '') {
     return null;
   }
+
  
 
   return (
