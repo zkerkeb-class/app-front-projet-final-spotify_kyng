@@ -63,8 +63,6 @@ const PlayerControls = ({
 
   const launchJam = async () => {
     try {
-      console.log({currentTrack});
-      
       const jamSession = await createJamSession(currentTrack._id);
       dispatch(setSessionId(jamSession.id));
       localStorage.setItem('jamSessionId', jamSession.id);

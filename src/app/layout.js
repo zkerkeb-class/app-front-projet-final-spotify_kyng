@@ -21,7 +21,10 @@ const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
 export default function RootLayout({ children }) {
 
   useEffect(() => {
-    socket.connect();
+    if(!socket?.connected) {
+      socket.connect();
+    }
+
     return () => {
       if (socket) {
         socket.disconnect();

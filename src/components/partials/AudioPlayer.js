@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { streamTrack } from '@/services/track.service';
 import { getArtistById } from '@/services/artist.service';
@@ -17,9 +18,9 @@ import {
   setIsLoading,
   setIsPlaying,
 } from '@/lib/features/player/playerSlice';
-const AudioPlayer = ({socket}) => {
-  const [isFullscreen, setIsFullscreen] = useState()
-  const [currentSong, setCurrentSong] = useState(undefined)
+const AudioPlayer = ({ socket }) => {
+  const [isFullscreen, setIsFullscreen] = useState();
+  const [currentSong, setCurrentSong] = useState(undefined);
   const {
     currentTrack,
     currentTime,
@@ -30,8 +31,8 @@ const AudioPlayer = ({socket}) => {
     isLoading,
     tracks,
     isPlaying,
-  }= useAppSelector((state) => state.player);
-  const {sessionId} = useAppSelector((state) => state.jam);
+  } = useAppSelector((state) => state.player);
+  const { sessionId } = useAppSelector((state) => state.jam);
   const dispatch = useAppDispatch();
 
   const playerRef = useRef(null);
@@ -50,21 +51,9 @@ const AudioPlayer = ({socket}) => {
       socket.on('seek', (time) => {
         audioRef.current.currentTime = time;
         dispatch(setCurrentTime(time));
-      })
-    } else if (audioRef.current) {
-      if (isPlaying) {
-        const playPromise = audioRef.current.play();
-
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error('Erreur de lecture automatique:', error);
-          });
-        }
-      } else {
-        audioRef.current.pause();
-      }
+      });
     }
-  }, [isPlaying, currentTrack]);
+  }, []);
 
   useEffect(() => {
     const fetchAudioStream = async () => {
@@ -97,7 +86,7 @@ const AudioPlayer = ({socket}) => {
           artist: artist?.name || 'Unknown Artist',
           album: album?.title || 'Unknown Album',
           artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
-        })
+        });
       } catch (error) {
         console.error('Error fetching audio stream:', error);
       } finally {
@@ -249,23 +238,23 @@ const AudioPlayer = ({socket}) => {
             />
           </div>
         )}
-        
-          <PlayerControls
-            isPlaying={isPlaying}
-            togglePlayPause={togglePlayPause}
-            handlePreviousSong={handlePreviousSong}
-            handleNextSong={handleNextSong}
-            playMode={playMode}
-            handlePlayModeChange={handlePlayModeChange}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-            isMuted={isMuted}
-            toggleMute={toggleMute}
-            volume={volume}
-            handleVolumeChange={handleVolumeChange}
-            isLoading={isLoading}
-          />
-       
+
+        <PlayerControls
+          isPlaying={isPlaying}
+          togglePlayPause={togglePlayPause}
+          handlePreviousSong={handlePreviousSong}
+          handleNextSong={handleNextSong}
+          playMode={playMode}
+          handlePlayModeChange={handlePlayModeChange}
+          isFullscreen={isFullscreen}
+          toggleFullscreen={toggleFullscreen}
+          isMuted={isMuted}
+          toggleMute={toggleMute}
+          volume={volume}
+          handleVolumeChange={handleVolumeChange}
+          isLoading={isLoading}
+        />
+
         <ProgressBar
           currentTime={currentTime}
           duration={duration}

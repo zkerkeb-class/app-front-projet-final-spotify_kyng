@@ -40,9 +40,6 @@ export default function RoomJoinPage() {
       localStorage.setItem('userId', userId);
       // Connexion au serveur Socket.io
       socket.connect();
-      socket.on('connect', () => {
-        console.log('✅ Connecté à Socket.io !');
-      });
       socket.emit('join-room', id, userId );
       localStorage.setItem('jamSessionId', id);
       router.push('/');
