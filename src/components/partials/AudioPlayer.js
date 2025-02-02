@@ -9,6 +9,8 @@ import ProgressBar from '../UI/ProgressBar';
 import Waveform from '../UI/Waveform';
 
 const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurrentTrackId }) => {
+  const imgPlaceholder = 'https://placehold.co/200x200/jpeg';
+
   const [currentSong, setCurrentSong] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -17,6 +19,7 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   const [playMode, setPlayMode] = useState('normal');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
@@ -25,10 +28,10 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
     if (audioRef.current) {
       if (isPlaying) {
         const playPromise = audioRef.current.play();
-
         if (playPromise !== undefined) {
           playPromise.catch((error) => {
             console.error('Erreur de lecture automatique:', error);
+            setError('Impossible de lire l’audio. Vérifiez votre connexion.');
           });
         }
       } else {
@@ -38,24 +41,20 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   }, [isPlaying, currentSong]);
 
   useEffect(() => {
-    const fetchAudioStream = async () => {
+    const fetchAudioStream = async (retryCount = 0) => {
       if (!currentTrackId || !tracks || tracks.length === 0) return;
-
       setIsLoading(true);
+      setError(null);
 
       try {
         const selectedTrack = tracks.find((track) => track._id === currentTrackId);
-
-        console.log('selectedTrack : ' + selectedTrack);
         if (!selectedTrack) throw new Error('Track not found');
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);
-
         const artist =
           typeof selectedTrack.artistId === 'string'
             ? await getArtistById(selectedTrack.artistId)
             : selectedTrack.artistId;
-
         const album =
           typeof selectedTrack.albumId === 'string'
             ? await getAlbumById(selectedTrack.albumId)
@@ -65,12 +64,16 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
           name: selectedTrack.title,
           path: audioUrl,
           duration: formatTime(selectedTrack.duration),
-          artist: artist?.name || 'Unknown Artist',
-          album: album?.title || 'Unknown Album',
-          artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
+          artist: artist?.name || ' Artist inconnu',
+          album: album?.title || 'Album inconnu',
+          artwork: selectedTrack.albumId?.images?.[0]?.path || imgPlaceholder,
         });
       } catch (error) {
         console.error('Error fetching audio stream:', error);
+        setError('Erreur de chargement de la piste. Réessayez plus tard.');
+        if (retryCount < 3) {
+          setTimeout(() => fetchAudioStream(retryCount + 1), 5000);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -105,21 +108,9 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
   const toggleFullscreen = async () => {
     try {
       if (!isFullscreen) {
-        if (playerRef.current.requestFullscreen) {
-          await playerRef.current.requestFullscreen();
-        } else if (playerRef.current.webkitRequestFullscreen) {
-          await playerRef.current.webkitRequestFullscreen();
-        } else if (playerRef.current.msRequestFullscreen) {
-          await playerRef.current.msRequestFullscreen();
-        }
+        await playerRef.current.requestFullscreen?.();
       } else {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          await document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-          await document.msExitFullscreen();
-        }
+        await document.exitFullscreen?.();
       }
     } catch (err) {
       console.error('Erreur lors du changement de mode plein écran:', err);
@@ -196,9 +187,18 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
       ref={playerRef}
       className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-md mt-auto'}`}
       role="region"
-      aria-label="Audio Player"
+      aria-label="Lecteur audio"
     >
       <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
+        {error && (
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="text-red-500"
+          >
+            {error}
+          </div>
+        )}
         {currentSong && (
           <SongInfo
             currentSong={currentSong}
@@ -216,7 +216,7 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
         )}
         <PlayerControls
           isPlaying={isPlaying}
-          togglePlayPause={togglePlayPause}
+          togglePlayPause={() => setIsPlaying(!isPlaying)}
           handlePreviousSong={handlePreviousSong}
           handleNextSong={handleNextSong}
           playMode={playMode}
@@ -224,33 +224,23 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
           isFullscreen={isFullscreen}
           toggleFullscreen={toggleFullscreen}
           isMuted={isMuted}
-          toggleMute={toggleMute}
+          toggleMute={() => setIsMuted(!isMuted)}
           volume={volume}
-          handleVolumeChange={handleVolumeChange}
+          handleVolumeChange={(e) => setVolume(parseFloat(e.target.value))}
           isLoading={isLoading}
         />
         <ProgressBar
           currentTime={currentTime}
           duration={duration}
-          handleSeek={handleSeek}
-          formatTime={formatTime}
+          handleSeek={(e) => setCurrentTime(parseFloat(e.target.value))}
         />
         <audio
           ref={audioRef}
           src={currentSong?.path}
           crossOrigin="anonymous"
-          onTimeUpdate={handleTimeUpdate}
+          onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
           onLoadedMetadata={(e) => setDuration(e.target.duration)}
-          onEnded={() => {
-            setIsPlaying(false);
-            if (playMode === 'repeat') {
-              audioRef.current.currentTime = 0;
-              audioRef.current.play();
-              setIsPlaying(true);
-            } else {
-              handleNextSong();
-            }
-          }}
+          onEnded={() => setIsPlaying(false)}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
         >
