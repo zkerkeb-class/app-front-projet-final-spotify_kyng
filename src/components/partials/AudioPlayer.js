@@ -7,23 +7,34 @@ import PlayerControls from '../UI/PlayerControls';
 import SongInfo from '../UI/SongInfo';
 import ProgressBar from '../UI/ProgressBar';
 import Waveform from '../UI/Waveform';
-
-const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurrentTrackId }) => {
-  const imgPlaceholder = 'https://placehold.co/200x200/jpeg';
-
-  const [currentSong, setCurrentSong] = useState(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
-  const [playMode, setPlayMode] = useState('normal');
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import {
+  setCurrentTrack,
+  setCurrentTime,
+  setDuration,
+  setVolume,
+  setIsMuted,
+  setIsLoading,
+  setIsPlaying,
+} from '@/lib/features/player/playerSlice';
+const AudioPlayer = () => {
+  const [isFullscreen, setIsFullscreen] = useState()
+  const {
+    currentTrack,
+    currentTime,
+    duration,
+    volume,
+    isMuted,
+    playMode,
+    isLoading,
+    tracks,
+    isPlaying,
+  }= useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
-
+  
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -38,16 +49,18 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, currentSong]);
+  }, [isPlaying, currentTrack]);
 
   useEffect(() => {
-    const fetchAudioStream = async (retryCount = 0) => {
-      if (!currentTrackId || !tracks || tracks.length === 0) return;
-      setIsLoading(true);
-      setError(null);
+    const fetchAudioStream = async () => {
+      if (!currentTrack?._id || !tracks?.length) return;
+
+      dispatch(setIsLoading(true));
 
       try {
-        const selectedTrack = tracks.find((track) => track._id === currentTrackId);
+        const selectedTrack = tracks.find((track) => track._id === currentTrack?._id);
+
+        console.log('selectedTrack : ' + selectedTrack);
         if (!selectedTrack) throw new Error('Track not found');
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);
@@ -60,14 +73,14 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
             ? await getAlbumById(selectedTrack.albumId)
             : selectedTrack.albumId;
 
-        setCurrentSong({
+        dispatch(setCurrentTrack({
           name: selectedTrack.title,
           path: audioUrl,
           duration: formatTime(selectedTrack.duration),
-          artist: artist?.name || ' Artist inconnu',
-          album: album?.title || 'Album inconnu',
-          artwork: selectedTrack.albumId?.images?.[0]?.path || imgPlaceholder,
-        });
+          artist: artist?.name || 'Unknown Artist',
+          album: album?.title || 'Unknown Album',
+          artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
+        }));
       } catch (error) {
         console.error('Error fetching audio stream:', error);
         setError('Erreur de chargement de la piste. Réessayez plus tard.');
@@ -75,12 +88,12 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
           setTimeout(() => fetchAudioStream(retryCount + 1), 5000);
         }
       } finally {
-        setIsLoading(false);
+        dispatch(setIsLoading(false));
       }
     };
 
     fetchAudioStream();
-  }, [currentTrackId, tracks]);
+  }, [currentTrack?._id, tracks]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -123,57 +136,57 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
     } else {
       audioRef.current.play();
     }
-    setIsPlaying(!isPlaying);
+    dispatch(setIsPlaying(!isPlaying));
   };
 
   const handleTimeUpdate = () => {
-    setCurrentTime(audioRef.current.currentTime);
+    dispatch(setCurrentTime(audioRef.current.currentTime));
   };
 
   const handleSeek = (e) => {
     const seekTime = parseFloat(e.target.value);
     audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
+    dispatch(setCurrentTime(seekTime));
   };
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     audioRef.current.volume = newVolume;
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
+    dispatch(setVolume(newVolume));
+    dispatch(setIsMuted(newVolume === 0));
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    dispatch(setIsMuted(!isMuted));
     audioRef.current.muted = !isMuted;
   };
 
   const handlePlayModeChange = () => {
     const modes = ['normal', 'repeat', 'shuffle'];
     const nextMode = modes[(modes.indexOf(playMode) + 1) % modes.length];
-    setPlayMode(nextMode);
+    dispatch(setPlayMode(nextMode));
   };
 
   const handleNextSong = () => {
-    const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrack?._id);
     let nextIndex;
     if (playMode === 'shuffle') {
       nextIndex = Math.floor(Math.random() * tracks.length);
     } else {
       nextIndex = (currentIndex + 1) % tracks.length;
     }
-    setCurrentTrackId(tracks[nextIndex]._id);
+    dispatch(setCurrentTrack(tracks[nextIndex]));
   };
 
   const handlePreviousSong = () => {
-    const currentIndex = tracks.findIndex((track) => track._id === currentTrackId);
+    const currentIndex = tracks.findIndex((track) => track._id === currentTrack?._id);
     let prevIndex;
     if (playMode === 'shuffle') {
       prevIndex = Math.floor(Math.random() * tracks.length);
     } else {
       prevIndex = currentIndex === 0 ? tracks.length - 1 : currentIndex - 1;
     }
-    setCurrentTrackId(tracks[prevIndex]._id);
+    dispatch(setCurrentTrack(tracks[prevIndex]));
   };
 
   const formatTime = (time) => {
@@ -190,25 +203,16 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
       aria-label="Lecteur audio"
     >
       <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
-        {error && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="text-red-500"
-          >
-            {error}
-          </div>
-        )}
-        {currentSong && (
+        {currentTrack && (
           <SongInfo
-            currentSong={currentSong}
+            currentSong={currentTrack}
             isFullscreen={isFullscreen}
           />
         )}
-        {isFullscreen && currentSong && (
+        {isFullscreen && currentTrack && (
           <div className="flex-grow flex items-center justify-center mb-8">
             <Waveform
-              audioUrl={currentSong.path}
+              audioUrl={currentTrack?.path}
               audioRef={audioRef}
               isFullscreen={isFullscreen}
             />
@@ -236,13 +240,22 @@ const AudioPlayer = ({ tracks, currentTrackId, isPlaying, setIsPlaying, setCurre
         />
         <audio
           ref={audioRef}
-          src={currentSong?.path}
+          src={currentTrack?.path}
           crossOrigin="anonymous"
-          onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
-          onLoadedMetadata={(e) => setDuration(e.target.duration)}
-          onEnded={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={(e) => dispatch(setDuration(e.target.duration))}
+          onEnded={() => {
+            dispatch(setIsPlaying(false));
+            if (playMode === 'repeat') {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play();
+              dispatch(setIsPlaying(true));
+            } else {
+              handleNextSong();
+            }
+          }}
+          onPlay={() => dispatch(setIsPlaying(true))}
+          onPause={() => dispatch(setIsPlaying(false))}
         >
           Votre navigateur ne supporte pas l'élément audio.
         </audio>
