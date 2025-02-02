@@ -3,26 +3,47 @@ import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { FaPause, FaPlay, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
-import { io } from "socket.io-client";
+import { io } from 'socket.io-client';
 import { formatDuration } from '@/utils';
+import { setSessionId, setUsers } from '@/lib/features/jam/jamSlice';
+import { setCurrentTime, setCurrentTrack, setIsPlaying } from '@/lib/features/player/playerSlice';
 
 const Jam = () => {
   const [copied, setCopied] = useState(false);
   const [socket, setSocket] = useState(null);
-  const { tracks, isPlaying, currentTrack } = useAppSelector((state) => state.player);
-  const { users, sessionUrl, sessionId } = useAppSelector((state) => state.jam);
+  const { isPlaying, currentTrack } = useAppSelector((state) => state.player);
+  const { users, sessionId } = useAppSelector((state) => state.jam);
   const dispatch = useAppDispatch();
+  const [userId, setUserId] = useState('');
 
+  useEffect(() => {
+    const jamSessionId = localStorage.getItem('jamSessionId');
+    const localUserId = localStorage.getItem('userId');
+    setUserId(localUserId);
+    if (jamSessionId) {
+      dispatch(setSessionId(jamSessionId));
+      const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+        autoConnect: false,
+      });
+      newSocket.connect();
+      newSocket.on('connect', () => {
+        console.log('✅ Connecté à Socket.io !');
+      });
+      newSocket.emit('join-room', jamSessionId, localUserId);
+      newSocket.on('room-state', (data) => {
+        console.log('Données de la room :', data);
 
-  useEffect(()=>{
-    const newSocket = io(process.env.NEXT_PUBLIC_API_URL);
-    setSocket(newSocket);
-    newSocket.emit('room-state', { roomId: sessionId, userId: localStorage.getItem('userId') });
- 
-    return () => {
-      newSocket.disconnect();
+        dispatch(setUsers(data.participants));
+        dispatch(setCurrentTrack(data.currentTrack));
+        dispatch(setCurrentTime(data.state.position));
+        dispatch(setIsPlaying(data.state.playing));
+      })
+      setSocket(newSocket);
     }
-  },[])
+    return () => {
+     socket.disconnect();
+    };
+  }, []);
 
   const copyToClipboard = async (url) => {
     try {
@@ -30,18 +51,19 @@ const Jam = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Réinitialise après 2 sec
     } catch (err) {
-      console.error("Erreur lors de la copie :", err);
+      console.error('Erreur lors de la copie :', err);
     }
   };
 
   const handleShareClick = () => {
     const shareUrl = `${window.location.origin}/room/${sessionId}`;
-    copyToClipboard(shareUrl); 
-    console.log('Inviter');
-
+    copyToClipboard(shareUrl);
   };
   const handleQuitClick = () => {
     console.log('Quitter');
+    socket.emit('leave-room', sessionId, userId);
+    localStorage.removeItem('jamSessionId');
+    localStorage.removeItem('userId');
   };
   const handlePlayClick = (track) => {
     if (currentTrack?._id === track._id) {
@@ -52,13 +74,9 @@ const Jam = () => {
     }
   };
 
-  console.log('Jam session ID:', sessionId);
-
   if (sessionId === '') {
     return null;
   }
-
- 
 
   return (
     <div className="bg-zinc-700 dark:bg-zinc-800 rounded-lg py-5 px-2 min-w-60 lg:min-w-80">
@@ -75,7 +93,7 @@ const Jam = () => {
             onClick={handleShareClick}
             className="px-4 py-2 border text-white rounded-full hover:bg-zinc-700"
           >
-            {copied ? "Lien copié !" : "Inviter"}
+            {copied ? 'Lien copié !' : 'Inviter'}
           </button>
           <button
             onClick={handleQuitClick}
@@ -85,7 +103,7 @@ const Jam = () => {
           </button>
         </div>
         <div className="flex flex-col gap-5">
-          {tracks.length === 0 || !currentTrack ? (
+          {!currentTrack ? (
             <p className="text-center text-xl text-gray-400">Aucune piste disponible</p>
           ) : (
             <div className="overflow-x-auto">
@@ -95,40 +113,40 @@ const Jam = () => {
                 aria-label="List of Tracks"
               >
                 <tbody className="bg-zinc-800 dark:bg-zinc-700 rounded-lg">
-                  {tracks.map((track, index) => (
-                    <tr
-                      key={track._id}
-                      className="hover:bg-zinc-500  cursor-pointer relative group"
-                    >
-                      <td className="px-6 py-4">
-                        <button
-                          className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
-                          onClick={() => handlePlayClick(track)}
-                        >
-                          {isPlaying && currentTrack?._id === track ? <FaPause /> : <FaPlay />}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link
-                          href={`/track/${track._id}`}
-                          className="underline"
-                          aria-label={`Track ${track.title}`}
-                        >
-                          {track.title}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link
-                          href={`/artist/${track.artistId ? track.artistId._id : ''}`}
-                          className="underline"
-                          aria-label={`Artist ${track.artistId ? track.artistId.name : 'Inconnu'}`}
-                        >
-                          {track.artistId ? track.artistId.name : 'Inconnu'}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">{formatDuration(track.duration)}</td>
-                    </tr>
-                  ))}
+                  {
+                     <tr
+                     key={currentTrack._id}
+                     className="hover:bg-zinc-500  cursor-pointer relative group"
+                   >
+                     <td className="px-6 py-4">
+                       <button
+                         className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
+                         onClick={() => handlePlayClick(currentTrack)}
+                       >
+                         {isPlaying ? <FaPause /> : <FaPlay />}
+                       </button>
+                     </td>
+                     <td className="px-6 py-4">
+                       <Link
+                         href={`/track/${currentTrack._id}`}
+                         className="underline"
+                         aria-label={`Track ${currentTrack.title}`}
+                       >
+                         {track.title}
+                       </Link>
+                     </td>
+                     <td className="px-6 py-4">
+                       <Link
+                         href={`/artist/${currentTrack.artistId ? currentTrack.artistId._id : ''}`}
+                         className="underline"
+                         aria-label={`Artist ${currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}`}
+                       >
+                         {currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}
+                       </Link>
+                     </td>
+                     <td className="px-6 py-4">{formatDuration(currentTrack.duration)}</td>
+                   </tr>
+                  }
                 </tbody>
               </table>
             </div>

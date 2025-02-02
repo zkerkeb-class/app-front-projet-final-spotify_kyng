@@ -20,10 +20,8 @@ export default function RoomJoinPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
         if (res.ok) {
           setRoomExists(true);
-          const newSocket = io(process.env.NEXT_PUBLIC_API_URL, {
-            transports: ['websocket'],
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
+          const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL,{
+            autoConnect: false,
           });
           setSocket(newSocket);
         } else {
@@ -35,18 +33,19 @@ export default function RoomJoinPage() {
     };
     checkRoom();
   }, [id]);
-  console.log({ roomExists });
 
   const handleJoinRoom = async () => {
     try {
       const userId = generateUniqueID();
       localStorage.setItem('userId', userId);
       // Connexion au serveur Socket.io
+      socket.connect();
       socket.on('connect', () => {
         console.log('✅ Connecté à Socket.io !');
       });
-      // newSocket.emit('join-room', { roomId:id, userId });
-      // router.push('/');
+      socket.emit('join-room', id, userId );
+      localStorage.setItem('jamSessionId', id);
+      router.push('/');
     } catch (error) {
       console.error('Erreur lors de la connexion à la room');
     }
