@@ -1,3 +1,4 @@
+"use client"
 import { Inter } from 'next/font/google';
 import './globals.css';
 import SideBar from '@/components/partials/Sidebar';
@@ -6,11 +7,28 @@ import Header from '@/components/partials/Header';
 import Head from 'next/head';
 import StoreProvider from './StoreProvider';
 import AudioPlayer from '@/components/partials/AudioPlayer';
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
+
 const inter = Inter({
   subsets: ['latin'],
 });
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+  autoConnect: false,
+});
+
 
 export default function RootLayout({ children }) {
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, []);
+
   return (
     <StoreProvider>
       <html
@@ -37,10 +55,10 @@ export default function RootLayout({ children }) {
             <SideBar />
             <main className="flex overflow-y-auto">
               {children}
-              <Jam />
+              <Jam socket={socket} />
             </main>
           </div>
-          <AudioPlayer />
+          <AudioPlayer socket={socket} />
         </body>
       </html>
     </StoreProvider>

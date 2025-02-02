@@ -3,18 +3,80 @@ import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { FaPause, FaPlay, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
-import { io } from 'socket.io-client';
 import { formatDuration } from '@/utils';
 import { setSessionId, setUsers } from '@/lib/features/jam/jamSlice';
 import { setCurrentTime, setCurrentTrack, setIsPlaying } from '@/lib/features/player/playerSlice';
 
-const Jam = () => {
+
+const CurrentTrackPlayer = (props) => {
+  const { currentTrack, isPlaying } = props
+  console.log(props);
+
+  return (
+    <div className="overflow-x-auto">
+      <table
+        className="w-full text-sm text-left"
+        role="table"
+        aria-label="List of Tracks"
+      >
+        <tbody className="bg-zinc-800 dark:bg-zinc-700 rounded-lg">
+          {
+              <tr
+              key={currentTrack._id}
+              className="hover:bg-zinc-500  cursor-pointer relative group"
+            >
+              <td className="px-6 py-4">
+                <button
+                  className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
+                  onClick={() => handlePlayClick(currentTrack)}
+                >
+                  {isPlaying ? <FaPause /> : <FaPlay />}
+                </button>
+              </td>
+              <td className="px-6 py-4">
+                <Link
+                  href={`/track/${currentTrack._id}`}
+                  className="underline"
+                  aria-label={`Track ${currentTrack.title}`}
+                >
+                  {currentTrack.title}
+                </Link>
+              </td>
+              <td className="px-6 py-4">
+                <Link
+                  href={`/artist/${currentTrack.artistId ? currentTrack.artistId._id : ''}`}
+                  className="underline"
+                  aria-label={`Artist ${currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}`}
+                >
+                  {currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}
+                </Link>
+              </td>
+              <td className="px-6 py-4">{formatDuration(currentTrack.duration)}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  )
+}
+const Jam = ({socket}) => {
   const [copied, setCopied] = useState(false);
-  const [socket, setSocket] = useState(null);
   const { isPlaying, currentTrack } = useAppSelector((state) => state.player);
   const { users, sessionId } = useAppSelector((state) => state.jam);
   const dispatch = useAppDispatch();
   const [userId, setUserId] = useState('');
+  const [roomState, setRoomState] = useState({});
+ 
+  const handleRoomState = (data) => {
+    console.log('Données de la room :', {data});
+    setRoomState(data);
+
+    dispatch(setUsers(data.participants));
+    dispatch(setCurrentTrack(data.currentTrack));
+    dispatch(setCurrentTime(data.state.position));
+    dispatch(setIsPlaying(Boolean(data.state.playing)));
+  }
+
 
   useEffect(() => {
     const jamSessionId = localStorage.getItem('jamSessionId');
@@ -22,28 +84,17 @@ const Jam = () => {
     setUserId(localUserId);
     if (jamSessionId) {
       dispatch(setSessionId(jamSessionId));
-      const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-        autoConnect: false,
+      
+      socket.on('connect', () => {
+        console.log('✅ Connecté à Socket.io composant JAM !');
+        socket.emit('join-room', jamSessionId, localUserId);
       });
-      newSocket.connect();
-      newSocket.on('connect', () => {
-        console.log('✅ Connecté à Socket.io !');
+      socket.on('room-state', (data) => {
+        handleRoomState(data);
       });
-      newSocket.emit('join-room', jamSessionId, localUserId);
-      newSocket.on('room-state', (data) => {
-        console.log('Données de la room :', data);
-
-        dispatch(setUsers(data.participants));
-        dispatch(setCurrentTrack(data.currentTrack));
-        dispatch(setCurrentTime(data.state.position));
-        dispatch(setIsPlaying(data.state.playing));
-      })
-      setSocket(newSocket);
     }
-    return () => {
-     socket.disconnect();
-    };
   }, []);
+  
 
   const copyToClipboard = async (url) => {
     try {
@@ -62,6 +113,8 @@ const Jam = () => {
   const handleQuitClick = () => {
     console.log('Quitter');
     socket.emit('leave-room', sessionId, userId);
+    dispatch(setSessionId(''));
+    dispatch(setUsers([]));
     localStorage.removeItem('jamSessionId');
     localStorage.removeItem('userId');
   };
@@ -77,7 +130,7 @@ const Jam = () => {
   if (sessionId === '') {
     return null;
   }
-
+  
   return (
     <div className="bg-zinc-700 dark:bg-zinc-800 rounded-lg py-5 px-2 min-w-60 lg:min-w-80">
       <div className="flex flex-col gap-2 h-full lg:h-screen">
@@ -105,52 +158,7 @@ const Jam = () => {
         <div className="flex flex-col gap-5">
           {!currentTrack ? (
             <p className="text-center text-xl text-gray-400">Aucune piste disponible</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table
-                className="w-full text-sm text-left"
-                role="table"
-                aria-label="List of Tracks"
-              >
-                <tbody className="bg-zinc-800 dark:bg-zinc-700 rounded-lg">
-                  {
-                     <tr
-                     key={currentTrack._id}
-                     className="hover:bg-zinc-500  cursor-pointer relative group"
-                   >
-                     <td className="px-6 py-4">
-                       <button
-                         className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
-                         onClick={() => handlePlayClick(currentTrack)}
-                       >
-                         {isPlaying ? <FaPause /> : <FaPlay />}
-                       </button>
-                     </td>
-                     <td className="px-6 py-4">
-                       <Link
-                         href={`/track/${currentTrack._id}`}
-                         className="underline"
-                         aria-label={`Track ${currentTrack.title}`}
-                       >
-                         {track.title}
-                       </Link>
-                     </td>
-                     <td className="px-6 py-4">
-                       <Link
-                         href={`/artist/${currentTrack.artistId ? currentTrack.artistId._id : ''}`}
-                         className="underline"
-                         aria-label={`Artist ${currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}`}
-                       >
-                         {currentTrack.artistId ? currentTrack.artistId.name : 'Inconnu'}
-                       </Link>
-                     </td>
-                     <td className="px-6 py-4">{formatDuration(currentTrack.duration)}</td>
-                   </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          )}
+          ) : <CurrentTrackPlayer currentTrack={currentTrack} isPlaying={isPlaying} />}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { generateUniqueID } from "@/utils";
 
-export const createJamSession = async () => {
+export const createJamSession = async (currentTrackId) => {
     try {
         const userId = generateUniqueID()
         localStorage.setItem('userId', userId);
@@ -9,7 +9,7 @@ export const createJamSession = async () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userId }),
+            body: JSON.stringify({ userId, currentTrackId }),
         });
         const data = await response.json();
         return data;

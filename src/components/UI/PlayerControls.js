@@ -12,10 +12,9 @@ import {
   FaVolumeUp,
   FaVolumeMute,
 } from 'react-icons/fa';
-import { IoShareOutline } from "react-icons/io5";
-import { IoMdPeople } from "react-icons/io";
+import { IoMdPeople } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSessionId, setSessionUrl } from '@/lib/features/jam/jamSlice';
+import { setSessionId } from '@/lib/features/jam/jamSlice';
 import { createJamSession } from '@/services/jam.service';
 
 const PlayerControls = ({
@@ -35,11 +34,11 @@ const PlayerControls = ({
 }) => {
   const [localVolume, setLocalVolume] = useState(initialVolume);
   const [prevVolume, setPrevVolume] = useState(initialVolume);
-  
+
   const dispatch = useDispatch();
   const { currentTrack } = useSelector((state) => state.player);
-const [isJamming, setIsJamming] = useState(false);
-const [isInviting, setIsInviting] = useState(false);
+  const { sessionId } = useSelector((state) => state.jam);
+
   useEffect(() => {
     setLocalVolume(initialVolume);
   }, [initialVolume, isMuted]);
@@ -63,20 +62,15 @@ const [isInviting, setIsInviting] = useState(false);
   };
 
   const launchJam = async () => {
- try {
-  const jamSession = await createJamSession();
-  dispatch(setSessionId(jamSession.id));
-  dispatch(setSessionUrl(jamSession.shareUrl));
-  localStorage.setItem('jamSessionId', jamSession.id);
-  
- } catch (error) {
-     console.error("Erreur lors de la création de la session de jam :", error);
-  
- }
-  }
-
-  const handleInviteClick = () => {
-    setIsInviting(!isInviting);
+    try {
+      console.log({currentTrack});
+      
+      const jamSession = await createJamSession(currentTrack._id);
+      dispatch(setSessionId(jamSession.id));
+      localStorage.setItem('jamSessionId', jamSession.id);
+    } catch (error) {
+      console.error('Erreur lors de la création de la session de jam :', error);
+    }
   };
 
   return (
@@ -84,6 +78,7 @@ const [isInviting, setIsInviting] = useState(false);
       <div className="flex items-center justify-center space-x-4">
         <button
           onClick={handlePlayModeChange}
+          disabled={isLoading || !currentTrack}
           className={`${
             playMode === 'shuffle' ? 'text-green-500' : 'text-gray-400'
           } hover:text-white transition-transform transform hover:scale-110`}
@@ -97,7 +92,7 @@ const [isInviting, setIsInviting] = useState(false);
         </button>
         <button
           onClick={handlePreviousSong}
-          disabled={isLoading}
+          disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
@@ -117,7 +112,7 @@ const [isInviting, setIsInviting] = useState(false);
         </button>
         <button
           onClick={handleNextSong}
-          disabled={isLoading}
+          disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
@@ -125,33 +120,15 @@ const [isInviting, setIsInviting] = useState(false);
         >
           <FaForward />
         </button>
-     { currentTrack&&    <button className={'text-green-500  hover:text-green-300'} onClick={launchJam}>
-          <IoMdPeople />
-        </button>}
-        {isJamming && (
-          <div className="absolute top-0 left-0 bg-gray-900 bg-opacity-75 p-4 rounded-lg w-full">
-            <span className="text-white">Inviter des personnes à rejoindre votre Jam</span>
+        {currentTrack &&
+          !sessionId&&
             <button
-              onClick={handleInviteClick}
-              className="flex items-center gap-1 p-1 rounded-full text-black bg-green-500 hover:bg-green-300"
+              className={'text-green-500  hover:text-green-300'}
+              onClick={launchJam}
             >
-              <IoShareOutline />
-              Partager le lien
+              <IoMdPeople />
             </button>
-
-            {isInviting && (
-              <div className="mt-2">
-                <input
-                  type="text"
-                  className="p-2 bg-white rounded-lg"
-                  value={inviteLink}
-                  readOnly
-                />
-                <button className="ml-2 p-2 bg-blue-500 text-white rounded-lg">Copier le lien</button>
-              </div>
-            )}
-          </div>
-        )}
+          }
       </div>
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">

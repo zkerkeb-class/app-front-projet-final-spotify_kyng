@@ -2,9 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const name = 'jam';
 const initialState = {
-  sessionUrl: '',
   sessionId: '',
   users: [],
+  socket: null,
 };
 export const jamSlice = createSlice({
   name,
@@ -22,6 +22,6 @@ export const jamSlice = createSlice({
   },
 });
 
-export const { setSessionUrl, setUsers, setSessionId } = jamSlice.actions;
+export const { setUsers, setSessionId } = jamSlice.actions;
 
 export default jamSlice.reducer;
