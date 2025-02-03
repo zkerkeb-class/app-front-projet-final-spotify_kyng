@@ -1,7 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { CirclePlus, Home, LibraryBig, Search, Settings } from 'lucide-react';
+import { CirclePlus, Home, LibraryBig, Search, Settings , Filter } from 'lucide-react';
 import NavItem from '@/components/UI/NavItem';
 
 const SideBar = () => {
@@ -23,6 +23,12 @@ const SideBar = () => {
               isActive={pathname === '/search'}
               icon={<Search />}
               name="Rechercher"
+            />
+            <NavItem
+              url="/filter"
+              isActive={pathname === '/filter'}
+              icon={<Filter />}
+              name="Filtrer"
             />
           </ul>
           <ul className="bg-zinc-800 dark:bg-zinc-700 rounded" aria-label="Bibliothèque et Playlists">
