@@ -5,7 +5,8 @@ import { FaPause, FaPlay, FaUser } from 'react-icons/fa';
 import Link from 'next/link';
 import { formatDuration } from '@/utils';
 import { setSessionId, setUsers } from '@/lib/features/jam/jamSlice';
-import { setCurrentTime, setCurrentTrack, setIsPlaying } from '@/lib/features/player/playerSlice'import AudioWave from '../UI/AudioWave';
+import { setCurrentTime, setCurrentTrack, setIsPlaying } from '@/lib/features/player/playerSlice';
+import AudioWave from '../UI/AudioWave';
 
 const CurrentTrackPlayer = (props) => {
   const { currentTrack, isPlaying } = props;
