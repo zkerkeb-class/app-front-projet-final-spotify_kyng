@@ -20,7 +20,7 @@ export default function RoomJoinPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
         if (res.ok) {
           setRoomExists(true);
-          const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL,{
+          const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
             autoConnect: false,
           });
           setSocket(newSocket);
@@ -40,7 +40,7 @@ export default function RoomJoinPage() {
       localStorage.setItem('userId', userId);
       // Connexion au serveur Socket.io
       socket.connect();
-      socket.emit('join-room', id, userId );
+      socket.emit('join-room', id, userId);
       localStorage.setItem('jamSessionId', id);
       router.push('/');
     } catch (error) {
@@ -48,18 +48,18 @@ export default function RoomJoinPage() {
     }
   };
 
-  if (roomExists === null) return <p className="dark:text-white">Chargement...</p>;
-  if (!roomExists) return <p>⚠️ Cette room n'existe pas.</p>;
+  if (roomExists === null) return <p className="text-white">Chargement...</p>;
+  if (!roomExists) return <p className="text-white">⚠️ Cette room n'existe pas.</p>;
 
   return (
     <Container>
-      <div className="p-4 dark:text-white">
-        <h1 className="text-xl font-bold">Rejoindre la Room</h1>
-        <p>Vous êtes sur le point de rejoindre la Room : {id}</p>
+      <div className="p-6 bg-zinc-800 text-white rounded-lg shadow-lg max-w-lg mx-auto">
+        <h1 className="text-2xl font-bold text-center mb-4">Rejoindre la Room</h1>
+        <p className="text-center text-lg mb-6">Vous êtes sur le point de rejoindre la Room : <span className="font-semibold">{id}</span></p>
 
         <button
           onClick={handleJoinRoom}
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+          className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200"
         >
           Rejoindre
         </button>
