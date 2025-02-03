@@ -18,12 +18,27 @@ const SearchPage = () => {
   const [suggestions, setSuggestions] = useState([]);
   const debounceTimeout = useRef(null);
   const fuse = useRef(null);
+  const cache = useRef(new Map());
 
-  const fetchSearchResults = async () => {
+  useEffect(() => {
+    const allResults = [...results.albums, ...results.artists, ...results.tracks];
+    fuse.current = new Fuse(allResults, {
+      keys: ['data.title', 'data.name', 'data.artistId.name'],
+      threshold: 0.3,
+    });
+  }, [results]);
+
+  const fetchSearchResults = async (query) => {
     if (!query.trim()) return;
 
     setLoading(true);
     setError(null);
+
+    if (cache.current.has(query)) {
+      setResults(cache.current.get(query));
+      setLoading(false);
+      return;
+    }
 
     try {
       const data = await searchService(query);
@@ -39,6 +54,7 @@ const SearchPage = () => {
         { albums: [], artists: [], tracks: [] }
       );
 
+      cache.current.set(query, groupedResults);
       setResults(groupedResults);
     } catch (err) {
       setError('Une erreur est survenue lors de la recherche.');
@@ -53,27 +69,28 @@ const SearchPage = () => {
       return;
     }
 
-    const allResults = [...results.albums, ...results.artists, ...results.tracks];
-    fuse.current = new Fuse(allResults, {
-      keys: ['data.title', 'data.name', 'data.artistId.name'],
-      threshold: 0.3,
-    });
-
     const matches = fuse.current.search(query).map(({ item }) => item);
     setSuggestions(matches);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion.data.title || suggestion.data.name || suggestion.data.artistId.name);
+    fetchSearchResults(
+      suggestion.data.title || suggestion.data.name || suggestion.data.artistId.name
+    );
   };
 
   useEffect(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = setTimeout(() => {
-      fetchSearchResults();
+      fetchSearchResults(query);
       handleSuggestions();
     }, 500);
   }, [query]);
 
   return (
-    <Container>
+    <Container> 
       <h1 className="text-4xl font-extrabold mb-6 text-center">Rechercher</h1>
       <input
         type="text"
