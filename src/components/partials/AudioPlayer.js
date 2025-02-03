@@ -66,10 +66,12 @@ const AudioPlayer = ({ socket }) => {
         if (!selectedTrack) throw new Error('Track not found');
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);
+
         const artist =
           typeof selectedTrack.artistId === 'string'
             ? await getArtistById(selectedTrack.artistId)
             : selectedTrack.artistId;
+
         const album =
           typeof selectedTrack.albumId === 'string'
             ? await getAlbumById(selectedTrack.albumId)
@@ -81,16 +83,12 @@ const AudioPlayer = ({ socket }) => {
           name: selectedTrack.title,
           path: audioUrl,
           duration: formatTime(selectedTrack.duration),
-          artist: artist?.name || ' Artist inconnu',
-          album: album?.title || 'Album inconnu',
-          artwork: selectedTrack.albumId?.images?.[0]?.path || imgPlaceholder,
+          artist: artist?.name || 'Unknown Artist',
+          album: album?.title || 'Unknown Album',
+          artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
         });
       } catch (error) {
         console.error('Error fetching audio stream:', error);
-        setError('Erreur de chargement de la piste. Réessayez plus tard.');
-        if (retryCount < 3) {
-          setTimeout(() => fetchAudioStream(retryCount + 1), 5000);
-        }
       } finally {
         dispatch(setIsLoading(false));
       }
@@ -125,9 +123,21 @@ const AudioPlayer = ({ socket }) => {
   const toggleFullscreen = async () => {
     try {
       if (!isFullscreen) {
-        await playerRef.current.requestFullscreen?.();
+        if (playerRef.current.requestFullscreen) {
+          await playerRef.current.requestFullscreen();
+        } else if (playerRef.current.webkitRequestFullscreen) {
+          await playerRef.current.webkitRequestFullscreen();
+        } else if (playerRef.current.msRequestFullscreen) {
+          await playerRef.current.msRequestFullscreen();
+        }
       } else {
-        await document.exitFullscreen?.();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          await document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          await document.msExitFullscreen();
+        }
       }
     } catch (err) {
       console.error('Erreur lors du changement de mode plein écran:', err);
@@ -210,18 +220,9 @@ const AudioPlayer = ({ socket }) => {
       ref={playerRef}
       className={`audio-player ${isFullscreen ? 'fixed inset-0 z-50' : 'relative w-full shadow-md mt-auto'}`}
       role="region"
-      aria-label="Lecteur audio"
+      aria-label="Audio Player"
     >
       <div className={`flex flex-col  ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
-        {error && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="text-red-500"
-          >
-            {error}
-          </div>
-        )}
         {currentSong && (
           <SongInfo
             currentSong={currentSong}
@@ -240,7 +241,7 @@ const AudioPlayer = ({ socket }) => {
 
         <PlayerControls
           isPlaying={isPlaying}
-          togglePlayPause={() => setIsPlaying(!isPlaying)}
+          togglePlayPause={togglePlayPause}
           handlePreviousSong={handlePreviousSong}
           handleNextSong={handleNextSong}
           playMode={playMode}
@@ -248,16 +249,17 @@ const AudioPlayer = ({ socket }) => {
           isFullscreen={isFullscreen}
           toggleFullscreen={toggleFullscreen}
           isMuted={isMuted}
-          toggleMute={() => setIsMuted(!isMuted)}
+          toggleMute={toggleMute}
           volume={volume}
-          handleVolumeChange={(e) => setVolume(parseFloat(e.target.value))}
+          handleVolumeChange={handleVolumeChange}
           isLoading={isLoading}
         />
 
         <ProgressBar
           currentTime={currentTime}
           duration={duration}
-          handleSeek={(e) => setCurrentTime(parseFloat(e.target.value))}
+          handleSeek={handleSeek}
+          formatTime={formatTime}
         />
         <audio
           ref={audioRef}
