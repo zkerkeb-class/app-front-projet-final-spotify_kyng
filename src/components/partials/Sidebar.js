@@ -1,7 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { CirclePlus, Home, LibraryBig, Search, Settings , Filter } from 'lucide-react';
+import { CirclePlus, Home, LibraryBig, Search, Settings, Filter, Clock, TrendingUp } from 'lucide-react'; // Ajout des nouvelles icônes
 import NavItem from '@/components/UI/NavItem';
 
 const SideBar = () => {
@@ -32,24 +32,18 @@ const SideBar = () => {
             />
           </ul>
           <ul className="bg-zinc-800 dark:bg-zinc-700 rounded" aria-label="Bibliothèque et Playlists">
-            <li className="text-zinc-400 dark:text-zinc-300 flex items-center p-3 gap-3">
-              <LibraryBig />
-              Bibliothèque
-              <button className="text-zinc-400 dark:text-zinc-300 hover:text-white" aria-label="Ajouter à la bibliothèque">
-                <CirclePlus />
-              </button>
-            </li>
+            {/* Nouvelle entrée pour "Dernières playlists écoutées" */}
             <NavItem
-              url="/playlist/liked"
-              name="Titres likés"
-              icon={
-                <Image
-                  src="/spotify_liked_playlist.jpg"
-                  alt="Titres likés"
-                  width={24}
-                  height={24}
-                />
-              }
+              url="/last-played"
+              isActive={pathname === '/last-played'}
+              icon={<Clock />}
+              name="Dernières playlists écoutées"
+            />
+            <NavItem
+              url="/most-played"
+              isActive={pathname === '/most-played'}
+              icon={<TrendingUp />}
+              name="Playlists les plus écoutées"
             />
           </ul>
           <ul className="bg-zinc-800 dark:bg-zinc-700 rounded" aria-label="Paramètres">

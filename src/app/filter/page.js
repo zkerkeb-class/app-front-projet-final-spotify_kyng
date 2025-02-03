@@ -120,7 +120,7 @@ const FilterPage = () => {
   return (
     <Container>
       {state.error && <p className="text-red-500">{state.error}</p>}
-      <h1 className="text-3xl font-bold mb-8 text-center">Filtrer les pistes</h1>
+      <h1 className="text-4xl font-extrabold mb-6 text-center">Filtrer les pistes</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="space-y-6">
           <h2 className="text-xl font-semibold">Filtres avancés</h2>
@@ -206,7 +206,7 @@ const FilterPage = () => {
                 className="no-underline"
               >
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold underline">{track.title || 'Sans titre'}</span>
+                  <span className="text-lg font-semibold underline text-white">{track.title || 'Sans titre'}</span>
 
                   <span className="text-sm text-gray-400">
                     {track.albumId?.name || 'Album inconnu'}

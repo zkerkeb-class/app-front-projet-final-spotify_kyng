@@ -17,9 +17,9 @@ const AlbumDetail = () => {
   const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-    const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
-    const dispatch = useAppDispatch();
-  
+  const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (!id) return;
 
@@ -48,14 +48,14 @@ const AlbumDetail = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-   const handlePlayClick = (track) => {
-     if (currentTrack?._id === track._id) {
-       dispatch(setIsPlaying(!isPlaying));
-     } else {
-       dispatch(setCurrentTrack(track));
-       dispatch(setIsPlaying(true));
-     }
-   };
+  const handlePlayClick = (track) => {
+    if (currentTrack?._id === track._id) {
+      dispatch(setIsPlaying(!isPlaying));
+    } else {
+      dispatch(setCurrentTrack(track));
+      dispatch(setIsPlaying(true));
+    }
+  };
 
   const getImage = (imagePath) => {
     const isValidUrl = (url) => {
@@ -150,7 +150,6 @@ const AlbumDetail = () => {
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
                           onClick={() => handlePlayClick(track)}
-
                         >
                           {isPlaying && currentTrack?._id === track ? <FaPause /> : <FaPlay />}
                         </button>

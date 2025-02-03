@@ -74,126 +74,125 @@ const SearchPage = () => {
 
   return (
     <Container>
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un album, un artiste, une piste..."
-          aria-label="Champ de recherche"
-          className="w-full p-3 bg-gray-800 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
-        />
+      <h1 className="text-4xl font-extrabold mb-6 text-center">Rechercher</h1>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Rechercher un album, un artiste, une piste..."
+        aria-label="Champ de recherche"
+        className="w-full p-3 bg-gray-800 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
+      />
 
-        {loading && <p className="mt-4 text-center text-gray-400">Chargement des résultats...</p>}
-        {error && <p className="mt-4 text-center text-red-500">{error}</p>}
+      {loading && <p className="mt-4 text-center text-gray-400">Chargement des résultats...</p>}
+      {error && <p className="mt-4 text-center text-red-500">{error}</p>}
 
-        {suggestions.length > 0 && (
-          <div className="mt-4 p-4 bg-gray-700 rounded-lg shadow-md">
-            <h3 className="text-white text-xl mb-2">Suggestions :</h3>
-            <ul>
-              {suggestions.map((item, index) => (
-                <li
-                  key={index}
-                  className="text-gray-300 hover:text-white cursor-pointer"
+      {suggestions.length > 0 && (
+        <div className="mt-4 p-4 bg-gray-700 rounded-lg shadow-md">
+          <h3 className="text-white text-xl mb-2">Suggestions :</h3>
+          <ul>
+            {suggestions.map((item, index) => (
+              <li
+                key={index}
+                className="text-gray-300 hover:text-white cursor-pointer"
+              >
+                {item.data.title || item.data.name || item.data.artistId.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {results.albums.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-green-500 text-2xl font-bold mb-4">Albums</h2>
+          <ul className="space-y-4">
+            {results.albums.map((item) => (
+              <li
+                key={item.data._id}
+                className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+              >
+                <Link
+                  href={`/album/${item.data._id}`}
+                  className="no-underline"
                 >
-                  {item.data.title || item.data.name || item.data.artistId.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  <div className="text-white font-semibold">{item.data.title}</div>
+                  <div className="text-gray-400">Année: {item.data.releaseDate}</div>
+                  <div className="text-gray-400">Artiste: {item.data.artistId.name}</div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        {results.albums.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-green-500 text-2xl font-bold mb-4">Albums</h2>
-            <ul className="space-y-4">
-              {results.albums.map((item) => (
-                <li
-                  key={item.data._id}
-                  className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+      {results.artists.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-green-500 text-2xl font-bold mb-4">Artistes</h2>
+          <ul className="space-y-4">
+            {results.artists.map((item) => (
+              <li
+                key={item.data._id}
+                className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+              >
+                <Link
+                  href={`/artist/${item.data._id}`}
+                  className="no-underline"
                 >
-                  <Link
-                    href={`/album/${item.data._id}`}
-                    className="no-underline"
-                  >
-                    <div className="text-white font-semibold">{item.data.title}</div>
-                    <div className="text-gray-400">Année: {item.data.releaseDate}</div>
-                    <div className="text-gray-400">Artiste: {item.data.artistId.name}</div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  <div className="text-white font-semibold">{item.data.name}</div>
+                  <div className="text-gray-400">Genre: {item.data.genres}</div>
+                  {item.data.images && item.data.images[0] && (
+                    <img
+                      src={item.data.images[0].path}
+                      alt={item.data.name}
+                      className="mt-2 w-16 h-16 rounded-full object-cover"
+                    />
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        {results.artists.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-green-500 text-2xl font-bold mb-4">Artistes</h2>
-            <ul className="space-y-4">
-              {results.artists.map((item) => (
-                <li
-                  key={item.data._id}
-                  className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+      {results.tracks.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-green-500 text-2xl font-bold mb-4">Pistes</h2>
+          <ul className="space-y-4">
+            {results.tracks.map((item) => (
+              <li
+                key={item.data._id}
+                className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
+              >
+                <Link
+                  href={`/track/${item.data._id}`}
+                  className="no-underline"
                 >
-                  <Link
-                    href={`/artist/${item.data._id}`}
-                    className="no-underline"
-                  >
-                    <div className="text-white font-semibold">{item.data.name}</div>
-                    <div className="text-gray-400">Genre: {item.data.genres}</div>
-                    {item.data.images && item.data.images[0] && (
-                      <img
-                        src={item.data.images[0].path}
-                        alt={item.data.name}
-                        className="mt-2 w-16 h-16 rounded-full object-cover"
-                      />
-                    )}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  <div className="text-white font-semibold">{item.data.title}</div>
+                  <div className="text-gray-400">
+                    <a
+                      href={item.data.audioLink}
+                      className="text-green-500 hover:underline"
+                    >
+                      Écouter
+                    </a>
+                  </div>
+                  <div className="text-gray-400">Durée: {item.data.duration} secondes</div>
+                  <div className="text-gray-400">
+                    Gros mots: {item.data.isExplicit ? 'Oui' : 'Non'}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        {results.tracks.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-green-500 text-2xl font-bold mb-4">Pistes</h2>
-            <ul className="space-y-4">
-              {results.tracks.map((item) => (
-                <li
-                  key={item.data._id}
-                  className="p-4 bg-gray-700 rounded-lg shadow-md hover:bg-gray-600"
-                >
-                  <Link
-                    href={`/track/${item.data._id}`}
-                    className="no-underline"
-                  >
-                    <div className="text-white font-semibold">{item.data.title}</div>
-                    <div className="text-gray-400">
-                      <a
-                        href={item.data.audioLink}
-                        className="text-green-500 hover:underline"
-                      >
-                        Écouter
-                      </a>
-                    </div>
-                    <div className="text-gray-400">Durée: {item.data.duration} secondes</div>
-                    <div className="text-gray-400">
-                      Gros mots: {item.data.isExplicit ? 'Oui' : 'Non'}
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {results.albums.length === 0 &&
+        results.artists.length === 0 &&
+        results.tracks.length === 0 && (
+          <p className="mt-4 text-center text-gray-400">Aucun résultat trouvé.</p>
         )}
-
-        {results.albums.length === 0 &&
-          results.artists.length === 0 &&
-          results.tracks.length === 0 && (
-            <p className="mt-4 text-center text-gray-400">Aucun résultat trouvé.</p>
-          )}
-      </div>
     </Container>
   );
 };
