@@ -13,7 +13,6 @@ import { setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 const img = 'https://placehold.co/200x200/jpeg';
 
-
 const TrackDetail = () => {
   const { id } = useParams();
   const [track, setTrack] = useState(null);
@@ -91,19 +90,20 @@ const TrackDetail = () => {
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{track.title}</h2>
             <p className="text-lg text-gray-300 mt-2">
               <Link
-                href={`/artist/${track.artistId._id}`}
+                href={track.artistId ? `/artist/${track.artistId._id}` : '#'}
                 className="underline"
               >
                 {track.artistId?.name || 'Artiste inconnu'}
               </Link>
               •
               <Link
-                href={`/album/${track.albumId._id}`}
+                href={track.albumId ? `/album/${track.albumId._id}` : '#'}
                 className="underline"
               >
                 {track.albumId?.title || 'Album inconnu'}
               </Link>
             </p>
+
             <p className="text-sm text-gray-400">
               {track.releaseYear} • {track.albumId?.genre || 'Genre inconnu'}
             </p>
