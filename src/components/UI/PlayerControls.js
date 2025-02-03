@@ -12,6 +12,10 @@ import {
   FaVolumeUp,
   FaVolumeMute,
 } from 'react-icons/fa';
+import { IoMdPeople } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSessionId } from '@/lib/features/jam/jamSlice';
+import { createJamSession } from '@/services/jam.service';
 
 const PlayerControls = ({
   isPlaying,
@@ -30,6 +34,10 @@ const PlayerControls = ({
 }) => {
   const [localVolume, setLocalVolume] = useState(initialVolume);
   const [prevVolume, setPrevVolume] = useState(initialVolume);
+
+  const dispatch = useDispatch();
+  const { currentTrack } = useSelector((state) => state.player);
+  const { sessionId } = useSelector((state) => state.jam);
 
   useEffect(() => {
     setLocalVolume(initialVolume);
@@ -53,11 +61,22 @@ const PlayerControls = ({
     handleVolumeChange(event);
   };
 
+  const launchJam = async () => {
+    try {
+      const jamSession = await createJamSession(currentTrack._id);
+      dispatch(setSessionId(jamSession.id));
+      localStorage.setItem('jamSessionId', jamSession.id);
+    } catch (error) {
+      console.error('Erreur lors de la création de la session de jam :', error);
+    }
+  };
+
   return (
     <div className="flex justify-between pb-2 rounded-lg text-white">
       <div className="flex items-center justify-center space-x-4">
         <button
           onClick={handlePlayModeChange}
+          disabled={isLoading || !currentTrack}
           className={`${
             playMode === 'shuffle' ? 'text-green-500' : 'text-gray-400'
           } hover:text-white transition-transform transform hover:scale-110`}
@@ -71,7 +90,7 @@ const PlayerControls = ({
         </button>
         <button
           onClick={handlePreviousSong}
-          disabled={isLoading}
+          disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
@@ -91,7 +110,7 @@ const PlayerControls = ({
         </button>
         <button
           onClick={handleNextSong}
-          disabled={isLoading}
+          disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
@@ -99,6 +118,15 @@ const PlayerControls = ({
         >
           <FaForward />
         </button>
+        {currentTrack &&
+          !sessionId&&
+            <button
+              className={'text-green-500  hover:text-green-300'}
+              onClick={launchJam}
+            >
+              <IoMdPeople />
+            </button>
+          }
       </div>
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">

@@ -91,14 +91,14 @@ const TrackDetail = () => {
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{track.title}</h2>
             <p className="text-lg text-gray-300 mt-2">
               <Link
-                href={`/artist/${track.artistId._id}`}
+                href={`/artist/${track.artistId?._id}`}
                 className="underline"
               >
                 {track.artistId?.name || 'Artiste inconnu'}
               </Link>
               •
               <Link
-                href={`/album/${track.albumId._id}`}
+                href={`/album/${track.albumId?._id}`}
                 className="underline"
               >
                 {track.albumId?.title || 'Album inconnu'}
