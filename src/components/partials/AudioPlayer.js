@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { streamTrack } from '@/services/track.service';
 import { getArtistById } from '@/services/artist.service';
@@ -17,8 +18,9 @@ import {
   setIsLoading,
   setIsPlaying,
 } from '@/lib/features/player/playerSlice';
-const AudioPlayer = () => {
-  const [isFullscreen, setIsFullscreen] = useState()
+const AudioPlayer = ({ socket }) => {
+  const [isFullscreen, setIsFullscreen] = useState();
+  const [currentSong, setCurrentSong] = useState(undefined);
   const {
     currentTrack,
     currentTime,
@@ -29,27 +31,29 @@ const AudioPlayer = () => {
     isLoading,
     tracks,
     isPlaying,
-  }= useAppSelector((state) => state.player);
+  } = useAppSelector((state) => state.player);
+  const { sessionId } = useAppSelector((state) => state.jam);
   const dispatch = useAppDispatch();
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
   
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error('Erreur de lecture automatique:', error);
-            setError('Impossible de lire l’audio. Vérifiez votre connexion.');
-          });
-        }
-      } else {
+    if (socket) {
+      socket.on('play', () => {
+        audioRef.current.play();
+        dispatch(setIsPlaying(true));
+      });
+      socket.on('pause', () => {
         audioRef.current.pause();
-      }
+        dispatch(setIsPlaying(false));
+      });
+      socket.on('seek', (time) => {
+        audioRef.current.currentTime = time;
+        dispatch(setCurrentTime(time));
+      });
     }
-  }, [isPlaying, currentTrack]);
+  }, []);
 
   useEffect(() => {
     const fetchAudioStream = async () => {
@@ -59,8 +63,6 @@ const AudioPlayer = () => {
 
       try {
         const selectedTrack = tracks.find((track) => track._id === currentTrack?._id);
-
-        console.log('selectedTrack : ' + selectedTrack);
         if (!selectedTrack) throw new Error('Track not found');
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);
@@ -73,14 +75,16 @@ const AudioPlayer = () => {
             ? await getAlbumById(selectedTrack.albumId)
             : selectedTrack.albumId;
 
-        dispatch(setCurrentTrack({
+        dispatch(setCurrentTrack(selectedTrack));
+        setCurrentSong({
+          _id: selectedTrack._id,
           name: selectedTrack.title,
           path: audioUrl,
           duration: formatTime(selectedTrack.duration),
           artist: artist?.name || 'Unknown Artist',
           album: album?.title || 'Unknown Album',
           artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
-        }));
+        });
       } catch (error) {
         console.error('Error fetching audio stream:', error);
         setError('Erreur de chargement de la piste. Réessayez plus tard.');
@@ -133,8 +137,14 @@ const AudioPlayer = () => {
   const togglePlayPause = () => {
     if (isPlaying) {
       audioRef.current.pause();
+      if (socket) {
+        socket.emit('pause', sessionId);
+      }
     } else {
       audioRef.current.play();
+      if (socket) {
+        socket.emit('play', sessionId);
+      }
     }
     dispatch(setIsPlaying(!isPlaying));
   };
@@ -202,22 +212,23 @@ const AudioPlayer = () => {
       role="region"
       aria-label="Lecteur audio"
     >
-      <div className={`flex flex-col ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
-        {currentTrack && (
+      <div className={`flex flex-col  ${isFullscreen ? 'h-full p-8' : 'p-4'}`}>
+        {currentSong && (
           <SongInfo
-            currentSong={currentTrack}
+            currentSong={currentSong}
             isFullscreen={isFullscreen}
           />
         )}
-        {isFullscreen && currentTrack && (
+        {isFullscreen && currentSong && (
           <div className="flex-grow flex items-center justify-center mb-8">
             <Waveform
-              audioUrl={currentTrack?.path}
+              audioUrl={currentSong?.path}
               audioRef={audioRef}
               isFullscreen={isFullscreen}
             />
           </div>
         )}
+
         <PlayerControls
           isPlaying={isPlaying}
           togglePlayPause={() => setIsPlaying(!isPlaying)}
@@ -233,6 +244,7 @@ const AudioPlayer = () => {
           handleVolumeChange={(e) => setVolume(parseFloat(e.target.value))}
           isLoading={isLoading}
         />
+
         <ProgressBar
           currentTime={currentTime}
           duration={duration}
@@ -240,7 +252,7 @@ const AudioPlayer = () => {
         />
         <audio
           ref={audioRef}
-          src={currentTrack?.path}
+          src={currentSong?.path}
           crossOrigin="anonymous"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={(e) => dispatch(setDuration(e.target.duration))}
