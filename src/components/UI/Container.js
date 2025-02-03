@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Container = ({ children, gradFrom, gradTo, textColor, darkTextColor }) => {
+const Container = ({ children, gradFrom, gradTo, textColor, darkTextColor, ariaLabel }) => {
   return (
     <section
       className={`h-full rounded-lg overflow-y-auto p-5 bg-gradient-to-b
@@ -9,7 +9,8 @@ const Container = ({ children, gradFrom, gradTo, textColor, darkTextColor }) => 
        ${textColor || 'text-gray-800 dark:text-gray-100'} 
        ${darkTextColor || ''}`}
       role="region"
-      aria-label="Content container"
+      aria-label={ariaLabel || "Content container"}
+      aria-live="polite"
     >
       {children}
     </section>

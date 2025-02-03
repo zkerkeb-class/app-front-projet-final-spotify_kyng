@@ -1,4 +1,3 @@
-'use client';
 import React, { useState, useEffect } from 'react';
 import {
   FaPlay,
@@ -79,7 +78,7 @@ const PlayerControls = ({
           disabled={isLoading || !currentTrack}
           className={`${
             playMode === 'shuffle' ? 'text-green-500' : 'text-gray-400'
-          } hover:text-white transition-transform transform hover:scale-110`}
+          } hover:text-white transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           aria-label="Changer le mode de lecture"
         >
           {playMode === 'repeat' ? (
@@ -93,7 +92,7 @@ const PlayerControls = ({
           disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           aria-label="Chanson précédente"
         >
           <FaBackward />
@@ -103,7 +102,7 @@ const PlayerControls = ({
           disabled={isLoading}
           className={`bg-green-500 p-3 rounded-full hover:bg-green-600 transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           aria-label={isPlaying ? 'Pause' : 'Lecture'}
         >
           {isPlaying ? <FaPause /> : <FaPlay />}
@@ -113,7 +112,7 @@ const PlayerControls = ({
           disabled={isLoading || !currentTrack}
           className={`text-white hover:text-white transition-transform transform hover:scale-110 ${
             isLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           aria-label="Chanson suivante"
         >
           <FaForward />
@@ -132,7 +131,9 @@ const PlayerControls = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={handleMuteClick}
-            className={`${isMuted ? 'text-gray-400' : 'text-white'} hover:text-white transition-transform transform hover:scale-110`}
+            className={`${
+              isMuted ? 'text-gray-400' : 'text-white'
+            } hover:text-white transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             aria-label={isMuted ? 'Désactiver le mute' : 'Muter'}
           >
             {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
@@ -150,14 +151,14 @@ const PlayerControls = ({
         </div>
         <button
           onClick={toggleFullscreen}
-          className="text-white hover:text-white transition-transform transform hover:scale-110"
+          className="text-white hover:text-white transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label={isFullscreen ? 'Quitter le plein écran' : 'Activer le plein écran'}
         >
           {isFullscreen ? <FaCompress /> : <FaExpand />}
         </button>
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75">
+        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75" aria-live="assertive">
           <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin" />
         </div>
       )}
