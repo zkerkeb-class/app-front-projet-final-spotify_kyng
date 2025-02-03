@@ -17,13 +17,13 @@ const SongInfo = ({ currentSong, isFullscreen }) => {
       />
       <div>
         <h2
-          className="text-white font-semibold text-lg"
+          className="text-black dark:text-white font-semibold text-lg"
           aria-label={`Titre de la chanson ${name || 'inconnu'}`}
         >
           {name || 'Unknown Song'}
         </h2>
         <p
-          className="text-gray-400"
+          className="text-gray-400 dark:text-gray-300"
           aria-label={`Nom de l'artiste ${artist || 'inconnu'}`}
         >
           {artist || 'Unknown Artist'}
@@ -35,7 +35,7 @@ const SongInfo = ({ currentSong, isFullscreen }) => {
         <div
           role="alert"
           aria-live="assertive"
-          className="text-red-500 mt-2 text-sm"
+          className="text-red-500 dark:text-red-400 mt-2 text-sm"
         >
           Informations sur la chanson manquantes. Veuillez vérifier les données.
         </div>
