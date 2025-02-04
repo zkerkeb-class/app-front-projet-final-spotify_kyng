@@ -1,8 +1,10 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getLastPlayedPlaylist } from '@/services/playlist.service';
 import Link from 'next/link';
 import Container from '@/components/UI/Container';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const LastPlayedPlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -15,16 +17,18 @@ const LastPlayedPlaylistPage = () => {
       const response = await getLastPlayedPlaylist();
       
       const sortedPlaylists = response
-        .sort((a, b) => new Date(b.lastPlayedDate) - new Date(a.lastPlayedDate)) // Tri inverse
+        .sort((a, b) => new Date(b.lastPlayedDate) - new Date(a.lastPlayedDate))
         .slice(0, 20);
       setPlaylists(sortedPlaylists);
     } catch (err) {
-      setError('Erreur lors du chargement des données');
+      setError('Erreur lors du chargement des données.');
       console.error(err);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const memoizedPlaylists = useMemo(() => playlists, [playlists]);
 
   useEffect(() => {
     fetchLastEcoutes();
@@ -34,15 +38,21 @@ const LastPlayedPlaylistPage = () => {
     return () => clearInterval(interval);
   }, [fetchLastEcoutes]);
 
-  if (loading) return <p className="text-center text-xl text-gray-500">Chargement...</p>;
-  if (error) return <p className="text-center text-xl text-red-500">{error}</p>;
+  const retryFetchData = () => {
+    setError(null);
+    fetchLastEcoutes();
+  };
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+
 
   return (
     <Container>
       <h1 className="text-4xl font-extrabold mb-6 text-center">Dernières playlists écoutées</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {Array.isArray(playlists) && playlists.length > 0 ? (
-          playlists.map((playlist, index) => (
+        {Array.isArray(memoizedPlaylists) && memoizedPlaylists.length > 0 ? (
+          memoizedPlaylists.map((playlist, index) => (
             <Link
               href={`/track/${playlist._id}`}
               key={playlist._id || `playlist-${index}`}
