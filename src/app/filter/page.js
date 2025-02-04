@@ -4,6 +4,8 @@ import { useReducer, useEffect, useCallback, useMemo } from 'react';
 import { advancedFilter } from '@/services/filter.service';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const initialState = {
   filters: {
@@ -54,7 +56,10 @@ const FilterPage = () => {
   }, [fetchData]);
 
   const handleChange = (e) => {
-    updateState({ filters: { ...state.filters, [e.target.name]: e.target.value }, page: 1 });
+    updateState({
+      filters: { ...state.filters, [e.target.name]: e.target.value },
+      page: 1,
+    });
   };
 
   const handleSortChange = (e) => {
@@ -64,9 +69,11 @@ const FilterPage = () => {
 
   const filteredTracks = useMemo(() => state.tracks, [state.tracks]);
 
+  if (state.loading) return <LoadingSpinner />;
+  if (state.error) return <ErrorMessage error={state.error} onRetry={fetchData} />;
+
   return (
     <Container>
-      {state.error && <p className="text-red-500">{state.error}</p>}
       <h1 className="text-4xl font-extrabold mb-6 text-center">Filtrer les pistes</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="space-y-6">
@@ -107,7 +114,6 @@ const FilterPage = () => {
 
       {/* Liste des pistes */}
       <div>
-        {state.loading && <p className="text-center">Chargement...</p>}
         <ul className="space-y-4">
           {filteredTracks.map((track) => (
             <li

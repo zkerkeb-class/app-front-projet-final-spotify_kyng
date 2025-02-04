@@ -3,6 +3,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getMostPlayedPlaylist } from '@/services/playlist.service';
 import Link from 'next/link';
 import Container from '@/components/UI/Container';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const MostPlayedPlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -13,9 +15,15 @@ const MostPlayedPlaylistPage = () => {
     try {
       setLoading(true);
       const response = await getMostPlayedPlaylist();
+
+      // Vérifier si la réponse est un tableau JSON valide
+      if (!Array.isArray(response)) {
+        throw new Error('Données incorrectes');
+      }
+
       setPlaylists(response);
     } catch (err) {
-      setError('Erreur lors du chargement des données');
+      setError('Erreur lors du chargement des données.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -26,7 +34,7 @@ const MostPlayedPlaylistPage = () => {
     fetchTopEcoutes();
     const interval = setInterval(() => {
       fetchTopEcoutes();
-    }, 60000);
+    }, 60000); // Mise à jour toutes les 60 secondes
     return () => clearInterval(interval);
   }, [fetchTopEcoutes]);
 
@@ -34,8 +42,14 @@ const MostPlayedPlaylistPage = () => {
     return playlists.sort((a, b) => b.playCount - a.playCount);
   }, [playlists]);
 
-  if (loading) return <p className="text-center text-xl text-gray-500">Chargement...</p>;
-  if (error) return <p className="text-center text-xl text-red-500">{error}</p>;
+  const retryFetchData = () => {
+    setError(null);
+    fetchTopEcoutes();
+  };
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+
 
   return (
     <Container>

@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { getArtistById } from '@/services/artist.service';
 import { getAlbumsByArtist } from '@/services/album.service';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/UI/Container';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
@@ -15,31 +17,32 @@ const ArtistDetail = () => {
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const router = useRouter();
 
-  useEffect(() => {
-    if (!id) return;
+  // Fonction pour récupérer les données de l'artiste et ses albums
+  const fetchArtistData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null); // Réinitialise l'erreur
+      const artistData = await getArtistById(id);
+      setArtist(artistData);
 
-    const fetchArtist = async () => {
-      try {
-        setLoading(true);
-        const artistData = await getArtistById(id);
-        setArtist(artistData);
-
-        const artistID = artistData._id;
-        const response = await getAlbumsByArtist(artistID);
-        setAlbums(response.albums || []);
-      } catch (err) {
-        setError('Erreur lors du chargement des données');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArtist();
+      const artistID = artistData._id;
+      const response = await getAlbumsByArtist(artistID);
+      setAlbums(response.albums || []);
+    } catch (err) {
+      setError('Erreur lors du chargement des données.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      fetchArtistData();
+    }
+  }, [id, fetchArtistData]);
 
   const handleCardClick = (id, type) => {
     if (!id || !type) {
@@ -63,17 +66,12 @@ const ArtistDetail = () => {
     return isValidUrl(imagePath) ? imagePath : img;
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <span className="text-xl animate-spin">Chargement...</span>
-      </div>
-    );
-  }
+  const retryFetchData = () => {
+    fetchArtistData();
+  };
 
-  if (error) {
-    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
 
   if (!artist) {
     return <div className="text-gray-400 text-center text-xl py-4">Artiste introuvable.</div>;

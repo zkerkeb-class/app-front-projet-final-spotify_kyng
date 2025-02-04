@@ -11,6 +11,7 @@ import Container from '@/components/UI/Container';
 
 import { setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
 const img = 'https://placehold.co/200x200/jpeg';
 
 const TrackDetail = () => {
@@ -41,7 +42,7 @@ const TrackDetail = () => {
 
         setTrack({ ...trackData, artistId: artist, albumId: album });
       } catch (err) {
-        setError('Erreur lors du chargement du morceau');
+        setError('Erreur lors du chargement du morceau.');
         console.error(err);
       } finally {
         setLoading(false);
@@ -66,13 +67,7 @@ const TrackDetail = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <span className="text-xl animate-spin">Chargement...</span>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
 
   if (error) {
     return <div className="text-red-500 text-center text-xl py-4">{error}</div>;

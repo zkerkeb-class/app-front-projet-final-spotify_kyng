@@ -1,10 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import searchService from '@/services/search.service';
 import Fuse from 'fuse.js';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+const DEBOUNCE_DELAY = 500;
 
 const SearchPage = () => {
   const [query, setQuery] = useState('');
@@ -19,16 +23,9 @@ const SearchPage = () => {
   const debounceTimeout = useRef(null);
   const fuse = useRef(null);
   const cache = useRef(new Map());
+  const [retryCount, setRetryCount] = useState(0);
 
-  useEffect(() => {
-    const allResults = [...results.albums, ...results.artists, ...results.tracks];
-    fuse.current = new Fuse(allResults, {
-      keys: ['data.title', 'data.name', 'data.artistId.name'],
-      threshold: 0.3,
-    });
-  }, [results]);
-
-  const fetchSearchResults = async (query) => {
+  const fetchSearchResults = useCallback(async (query) => {
     if (!query.trim()) return;
 
     setLoading(true);
@@ -57,11 +54,16 @@ const SearchPage = () => {
       cache.current.set(query, groupedResults);
       setResults(groupedResults);
     } catch (err) {
-      setError('Une erreur est survenue lors de la recherche.');
+      if (retryCount < MAX_RETRIES) {
+        setRetryCount((prev) => prev + 1);
+        setTimeout(() => fetchSearchResults(query), RETRY_DELAY);
+      } else {
+        setError('Une erreur est survenue lors de la recherche. Veuillez réessayer plus tard.');
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [retryCount]);
 
   const handleSuggestions = () => {
     if (query.length < 3) {
@@ -81,16 +83,24 @@ const SearchPage = () => {
   };
 
   useEffect(() => {
+    const allResults = [...results.albums, ...results.artists, ...results.tracks];
+    fuse.current = new Fuse(allResults, {
+      keys: ['data.title', 'data.name', 'data.artistId.name'],
+      threshold: 0.3,
+    });
+  }, [results]);
+
+  useEffect(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
     debounceTimeout.current = setTimeout(() => {
       fetchSearchResults(query);
       handleSuggestions();
-    }, 500);
-  }, [query]);
+    }, DEBOUNCE_DELAY);
+  }, [query, fetchSearchResults]);
 
   return (
-    <Container> 
+    <Container>
       <h1 className="text-4xl font-extrabold mb-6 text-center">Rechercher</h1>
       <input
         type="text"
@@ -112,6 +122,7 @@ const SearchPage = () => {
               <li
                 key={index}
                 className="text-gray-300 hover:text-white cursor-pointer"
+                onClick={() => handleSuggestionClick(item)}
               >
                 {item.data.title || item.data.name || item.data.artistId.name}
               </li>
@@ -186,14 +197,6 @@ const SearchPage = () => {
                   className="no-underline"
                 >
                   <div className="text-white font-semibold">{item.data.title}</div>
-                  <div className="text-gray-400">
-                    <a
-                      href={item.data.audioLink}
-                      className="text-green-500 hover:underline"
-                    >
-                      Écouter
-                    </a>
-                  </div>
                   <div className="text-gray-400">Durée: {item.data.duration} secondes</div>
                   <div className="text-gray-400">
                     Gros mots: {item.data.isExplicit ? 'Oui' : 'Non'}
