@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useEffect, useCallback, useMemo } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { advancedFilter } from '@/services/filter.service';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
@@ -48,7 +48,7 @@ const FilterPage = () => {
     } finally {
       updateState({ loading: false });
     }
-  }, [state.filters, state.sortOptions, state.page, state.limit]);
+  }, [JSON.stringify(state.filters), state.sortOptions, state.page, state.limit]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchData, 300);
@@ -63,14 +63,18 @@ const FilterPage = () => {
   };
 
   const handleSortChange = (e) => {
-    const [field, order] = e.target.value.split('-');
+    const value = e.target.value;
+    const [field, order] = value.includes('-') ? value.split('-') : ['popularity', 'desc'];
     updateState({ sortOptions: { field, order }, page: 1 });
   };
 
-  const filteredTracks = useMemo(() => state.tracks, [state.tracks]);
-
-  if (state.loading) return <LoadingSpinner />;
-  if (state.error) return <ErrorMessage error={state.error} onRetry={fetchData} />;
+  if (state.error)
+    return (
+      <ErrorMessage
+        error={state.error}
+        onRetry={fetchData}
+      />
+    );
 
   return (
     <Container>
@@ -111,11 +115,10 @@ const FilterPage = () => {
           </select>
         </div>
       </div>
-
-      {/* Liste des pistes */}
+      
       <div>
         <ul className="space-y-4">
-          {filteredTracks.map((track) => (
+          {state.tracks.map((track) => (
             <li
               key={track._id}
               className="p-4 bg-gray-800 rounded-lg shadow-lg"
@@ -125,7 +128,9 @@ const FilterPage = () => {
                 className="block"
               >
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold underline text-white">{track.title || 'Sans titre'}</span>
+                  <span className="text-lg font-semibold underline text-white">
+                    {track.title || 'Sans titre'}
+                  </span>
                   <span className="text-sm text-gray-400">
                     {track.albumId?.name || 'Album inconnu'}
                   </span>

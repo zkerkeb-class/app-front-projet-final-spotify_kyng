@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation';
 import AlbumCard from '@/components/UI/AlbumCard';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const Home = () => {
   const [topAlbums, setTopAlbums] = useState([]);
@@ -34,7 +36,7 @@ const Home = () => {
       setTopAlbums(albums.data);
       setTopArtists(artistsResponse ? artistsResponse.map((item) => item.artist) : []);
     } catch (err) {
-      setError('Erreur lors du chargement des données');
+      setError('Erreur lors du chargement des données.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -79,27 +81,8 @@ const Home = () => {
     fetchData();
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <span className="text-xl animate-spin">Chargement...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-500 text-center text-xl py-4 flex justify-center items-center space-x-4">
-        <span>{error}</span>
-        <button
-          onClick={retryFetchData}
-          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none transition duration-300 transform hover:scale-105 active:scale-95"
-        >
-          Réessayer
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
 
   return (
     <Container>
