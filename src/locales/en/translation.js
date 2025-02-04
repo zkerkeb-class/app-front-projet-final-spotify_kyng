@@ -12,5 +12,5 @@ export default {
   filter: "Filter",
   lastPlayed: "Last Played Playlists",
   mostPlayed: "Most Played Playlists",
-  placeholderSearch: "What would you like to listen to or watch"
+  placeholderSearch: "What would you like to listen to or watch ?"
 };
