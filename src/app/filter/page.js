@@ -1,9 +1,11 @@
 'use client';
 
-import { useReducer, useEffect, useCallback, useMemo } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { advancedFilter } from '@/services/filter.service';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const initialState = {
   filters: {
@@ -46,7 +48,7 @@ const FilterPage = () => {
     } finally {
       updateState({ loading: false });
     }
-  }, [state.filters, state.sortOptions, state.page, state.limit]);
+  }, [JSON.stringify(state.filters), state.sortOptions, state.page, state.limit]);
 
   useEffect(() => {
     const timeoutId = setTimeout(fetchData, 300);
@@ -54,19 +56,28 @@ const FilterPage = () => {
   }, [fetchData]);
 
   const handleChange = (e) => {
-    updateState({ filters: { ...state.filters, [e.target.name]: e.target.value }, page: 1 });
+    updateState({
+      filters: { ...state.filters, [e.target.name]: e.target.value },
+      page: 1,
+    });
   };
 
   const handleSortChange = (e) => {
-    const [field, order] = e.target.value.split('-');
+    const value = e.target.value;
+    const [field, order] = value.includes('-') ? value.split('-') : ['popularity', 'desc'];
     updateState({ sortOptions: { field, order }, page: 1 });
   };
 
-  const filteredTracks = useMemo(() => state.tracks, [state.tracks]);
+  if (state.error)
+    return (
+      <ErrorMessage
+        error={state.error}
+        onRetry={fetchData}
+      />
+    );
 
   return (
     <Container>
-      {state.error && <p className="text-red-500">{state.error}</p>}
       <h1 className="text-4xl font-extrabold mb-6 text-center">Filtrer les pistes</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="space-y-6">
@@ -104,12 +115,10 @@ const FilterPage = () => {
           </select>
         </div>
       </div>
-
-      {/* Liste des pistes */}
+      
       <div>
-        {state.loading && <p className="text-center">Chargement...</p>}
         <ul className="space-y-4">
-          {filteredTracks.map((track) => (
+          {state.tracks.map((track) => (
             <li
               key={track._id}
               className="p-4 bg-gray-800 rounded-lg shadow-lg"
@@ -119,7 +128,9 @@ const FilterPage = () => {
                 className="block"
               >
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold underline text-white">{track.title || 'Sans titre'}</span>
+                  <span className="text-lg font-semibold underline text-white">
+                    {track.title || 'Sans titre'}
+                  </span>
                   <span className="text-sm text-gray-400">
                     {track.albumId?.name || 'Album inconnu'}
                   </span>
