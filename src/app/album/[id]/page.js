@@ -5,20 +5,20 @@ import { useParams } from 'next/navigation';
 import { getAlbumById } from '@/services/album.service';
 import { getTracksByAlbum } from '@/services/track.service';
 import { FaPlay, FaPause, FaClock } from 'react-icons/fa';
-import AudioPlayer from '@/components/partials/AudioPlayer';
 import Link from 'next/link';
 import Container from '@/components/UI/Container';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
 const AlbumDetail = () => {
   const { id } = useParams();
   const [album, setAlbum] = useState(null);
-  const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackId, setCurrentTrackId] = useState(null);
+  const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!id) return;
@@ -31,7 +31,7 @@ const AlbumDetail = () => {
 
         const albumID = albumData._id;
         const response = await getTracksByAlbum(albumID);
-        setTracks(response.tracks || []);
+        dispatch(setTracks(response.tracks || []));
       } catch (err) {
         setError('Erreur lors du chargement des données.');
       } finally {
@@ -42,24 +42,18 @@ const AlbumDetail = () => {
     fetchAlbum();
   }, [id]);
 
-  useEffect(() => {
-    if (currentTrackId) {
-      setIsPlaying(true);
-    }
-  }, [currentTrackId]);
-
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handlePlayClick = (id) => {
-    if (currentTrackId === id) {
-      setIsPlaying(!isPlaying);
+  const handlePlayClick = (track) => {
+    if (currentTrack?._id === track._id) {
+      dispatch(setIsPlaying(!isPlaying));
     } else {
-      setCurrentTrackId(id);
-      setIsPlaying(true);
+      dispatch(setCurrentTrack(track));
+      dispatch(setIsPlaying(true));
     }
   };
 
@@ -155,12 +149,9 @@ const AlbumDetail = () => {
                       <td className="px-6 py-4">
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
-                          onClick={() => handlePlayClick(track._id)}
-                          aria-label={
-                            isPlaying && currentTrackId === track._id ? 'Pause' : 'Lecture'
-                          }
+                          onClick={() => handlePlayClick(track)}
                         >
-                          {isPlaying && currentTrackId === track._id ? <FaPause /> : <FaPlay />}
+                          {isPlaying && currentTrack?._id === track ? <FaPause /> : <FaPlay />}
                         </button>
                       </td>
                       <td className="px-6 py-4">
@@ -190,15 +181,6 @@ const AlbumDetail = () => {
           )}
         </div>
       </Container>
-      {currentTrackId && (
-        <AudioPlayer
-          tracks={tracks}
-          currentTrackId={currentTrackId}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          setCurrentTrackId={setCurrentTrackId}
-        />
-      )}
     </div>
   );
 };

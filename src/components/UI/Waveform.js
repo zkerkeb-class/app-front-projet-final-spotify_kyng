@@ -69,7 +69,9 @@ const Waveform = ({ audioUrl, audioRef }) => {
   return (
     <div className="w-full px-4 py-2">
       {isLoading && (
-        <div className="text-center text-gray-500 mb-2" role="alert" aria-live="assertive">Chargement de la forme d'onde...</div>
+        <div className="text-center text-gray-500 mb-2" role="alert" aria-live="assertive">
+          Chargement de la forme d'onde...
+        </div>
       )}
       <div
         ref={waveformRef}
