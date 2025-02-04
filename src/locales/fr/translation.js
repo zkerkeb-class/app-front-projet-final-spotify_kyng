@@ -12,5 +12,5 @@ export default {
   filter: "Filtrer",
   lastPlayed: "Dernières playlists écoutées",
   mostPlayed: "Playlists les plus écoutées",
-  placeholderSearch: "Que souhaitez-vous écouter ou regarder"
+  placeholderSearch: "Que souhaitez-vous écouter ou regarder ?"
 };

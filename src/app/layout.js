@@ -10,6 +10,8 @@ import StoreProvider from './StoreProvider';
 import AudioPlayer from '@/components/partials/AudioPlayer';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useTranslation } from 'react-i18next';
+import  '../lib/i18n';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,6 +21,17 @@ const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
 });
 
 export default function RootLayout({ children }) {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem('lang');
+    if (storedLang) {
+      i18n.changeLanguage(storedLang);
+    } else {
+      i18n.changeLanguage('fr'); // Langue par défaut
+    }
+  }, [i18n]);
+
   // Définition de l'état isJamActive avec useState
   const [isJamActive, setIsJamActive] = useState(false);  // Initialisation de l'état à false
 
