@@ -7,7 +7,7 @@
     "prepare": "husky",
     "format": "prettier-eslint --write ./src/**/*.{js,jsx,ts,tsx}",
     "lint": "eslint .",
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "next build",
     "start": "next start"
   },
