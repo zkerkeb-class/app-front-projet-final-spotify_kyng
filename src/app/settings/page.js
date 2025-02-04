@@ -1,95 +1,103 @@
 'use client';
 import Container from '@/components/UI/Container';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import '../../lib/i18n';
 
 const Settings = () => {
+  const { t, i18n } = useTranslation();
   const [currentLang, setCurrentLang] = useState('fr');
-  useEffect(() => {
-    // Check for user’s previous dark mode preference
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode) {
-      if (JSON.parse(savedMode)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-    const savedLang = localStorage.getItem('lang');
-    if (savedLang) {
-      // Set the  language
-      setCurrentLang(savedLang);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  const handleLanguageChange = useCallback((lang) => {
+    setCurrentLang(lang);
+    i18n.changeLanguage(lang);
+    localStorage.setItem('lang', lang);
+  }, [i18n]);
+
+  const handleThemeChange = useCallback((isDark) => {
+    setIsDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('darkMode', true);
     } else {
-      localStorage.setItem('lang', currentLang);
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('darkMode', false);
     }
   }, []);
 
-  const handleLanguageChange = (lang) => {
-    setCurrentLang(lang);
-    localStorage.setItem('lang', lang);
+  useEffect(() => {
+    const storedLang = localStorage.getItem('lang');
+    const storedDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    if (storedLang) {
+      i18n.changeLanguage(storedLang);
+      setCurrentLang(storedLang);
+    } else {
+      i18n.changeLanguage('fr');
+      setCurrentLang('fr');
+    }
+
+    setIsDarkMode(storedDarkMode);
+    if (storedDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [i18n]);
+
+  const getButtonClass = (isActive) => {
+    return `px-4 py-2 border text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${isActive ? 'bg-green-500' : 'bg-zinc-600'}`;
   };
+
   return (
     <Container>
       <div className="dark:text-white text-black">
-        <h1 className="text-3xl font-bold dark:text-white">Paramètres</h1>
+        <h1 className="text-3xl font-bold dark:text-white">{t('settings')}</h1>
 
         <div className="mt-8 space-y-6">
-          {/* Language Selector */}
           <div>
-            <h2 className="text-xl font-semibold dark:text-white">Langue</h2>
+            <h2 className="text-xl font-semibold dark:text-white">{t('language')}</h2>
             <div className="flex gap-4 mt-4">
               <button
                 onClick={() => handleLanguageChange('en')}
-                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${
-                  currentLang === 'en' ? 'bg-zinc-600' : ''
-                }`}
-                aria-label="Change to English"
+                className={getButtonClass(currentLang === 'en')}
+                aria-label={t('english')}
               >
-                English
+                {t('english')}
               </button>
               <button
                 onClick={() => handleLanguageChange('fr')}
-                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${
-                  currentLang === 'fr' ? 'bg-zinc-600' : ''
-                }`}
-                aria-label="Changer en français"
+                className={getButtonClass(currentLang === 'fr')}
+                aria-label={t('french')}
               >
-                Français
+                {t('french')}
               </button>
               <button
                 onClick={() => handleLanguageChange('ar')}
-                className={`px-4 py-2 border text-white rounded-full hover:bg-zinc-700 ${
-                  currentLang === 'ar' ? 'bg-zinc-600' : ''
-                }`}
-                aria-label="تغيير إلى العربية"
+                className={getButtonClass(currentLang === 'ar')}
+                aria-label={t('arabic')}
               >
-                العربية
+                {t('arabic')}
               </button>
             </div>
           </div>
-
-          {/* Dark Mode Switch */}
           <div>
-            <h2 className="text-xl font-semibold dark:text-white">Thème</h2>
+            <h2 className="text-xl font-semibold dark:text-white">{t('theme')}</h2>
             <div className="mt-4 flex items-center space-x-4">
               <button
-                onClick={() => {
-                  document.documentElement.classList.remove('dark');
-                  localStorage.setItem('darkMode', false);
-                }}
-                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
-                aria-label="Changer en mode jour"
+                onClick={() => handleThemeChange(false)}
+                className={getButtonClass(!isDarkMode)}
+                aria-label={t('dayMode')}
               >
-                Jour
+                {t('dayMode')}
               </button>
               <button
-                onClick={() => {
-                  document.documentElement.classList.add('dark');
-                  localStorage.setItem('darkMode', true);
-                }}
-                className="px-4 py-2 bg-zinc-600 text-white rounded-full hover:bg-zinc-700"
-                aria-label="Changer en mode nuit"
+                onClick={() => handleThemeChange(true)}
+                className={getButtonClass(isDarkMode)}
+                aria-label={t('nightMode')}
               >
-                Nuit
+                {t('nightMode')}
               </button>
             </div>
           </div>
