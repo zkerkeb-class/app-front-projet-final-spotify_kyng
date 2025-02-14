@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
@@ -22,6 +23,7 @@ const AlbumDetail = () => {
   const [isRetrying, setIsRetrying] = useState(false);
   const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const fetchAlbum = useCallback(async () => {
     if (!id || isRetrying) return;
@@ -36,11 +38,11 @@ const AlbumDetail = () => {
       const response = await getTracksByAlbum(albumID);
       dispatch(setTracks(response.tracks || []));
     } catch (err) {
-      setError('Erreur lors du chargement des données.');
+      setError(t('albumLoadError'));
     } finally {
       setLoading(false);
     }
-  }, [id, dispatch, isRetrying]);
+  }, [id, dispatch, isRetrying, t]);
 
   useEffect(() => {
     fetchAlbum();

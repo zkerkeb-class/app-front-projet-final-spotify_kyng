@@ -5,26 +5,26 @@ import Link from 'next/link';
 import Container from '@/components/UI/Container';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const MostPlayedPlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   const fetchTopEcoutes = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getMostPlayedPlaylist();
 
-      // Vérifier si la réponse est un tableau JSON valide
       if (!Array.isArray(response)) {
         throw new Error('Données incorrectes');
       }
 
       setPlaylists(response);
     } catch (err) {
-      setError('Erreur lors du chargement des données.');
-      console.error(err);
+      setError(t('albumLoadError'));
     } finally {
       setLoading(false);
     }
@@ -48,8 +48,13 @@ const MostPlayedPlaylistPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
-
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   return (
     <Container>
