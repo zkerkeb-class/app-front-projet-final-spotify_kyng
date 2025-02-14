@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { getAlbumById } from '@/services/album.service';
 import { getTracksByAlbum } from '@/services/track.service';
@@ -9,6 +9,8 @@ import Link from 'next/link';
 import Container from '@/components/UI/Container';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
@@ -17,30 +19,32 @@ const AlbumDetail = () => {
   const [album, setAlbum] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
   const dispatch = useAppDispatch();
 
+  const fetchAlbum = useCallback(async () => {
+    if (!id || isRetrying) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const albumData = await getAlbumById(id);
+      setAlbum(albumData);
+
+      const albumID = albumData._id;
+      const response = await getTracksByAlbum(albumID);
+      dispatch(setTracks(response.tracks || []));
+    } catch (err) {
+      setError('Erreur lors du chargement des données.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, dispatch, isRetrying]);
+
   useEffect(() => {
-    if (!id) return;
-
-    const fetchAlbum = async () => {
-      try {
-        setLoading(true);
-        const albumData = await getAlbumById(id);
-        setAlbum(albumData);
-
-        const albumID = albumData._id;
-        const response = await getTracksByAlbum(albumID);
-        dispatch(setTracks(response.tracks || []));
-      } catch (err) {
-        setError('Erreur lors du chargement des données.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAlbum();
-  }, [id]);
+  }, [fetchAlbum]);
 
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60);
@@ -70,17 +74,14 @@ const AlbumDetail = () => {
     return isValidUrl(imagePath) ? imagePath : img;
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-white">
-        <span className="text-xl animate-spin">Chargement...</span>
-      </div>
-    );
-  }
+  const retryFetchData = () => {
+    setIsRetrying(true);
+    fetchAlbum();
+    setIsRetrying(false);
+  };
 
-  if (error) {
-    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
 
   if (!album) {
     return <div className="text-gray-400 text-center text-xl py-4">Album introuvable.</div>;
@@ -151,7 +152,7 @@ const AlbumDetail = () => {
                           className="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full dark:text-white transition-transform transform hover:scale-110"
                           onClick={() => handlePlayClick(track)}
                         >
-                          {isPlaying && currentTrack?._id === track ? <FaPause /> : <FaPlay />}
+                          {isPlaying && currentTrack?._id === track._id ? <FaPause /> : <FaPlay />}
                         </button>
                       </td>
                       <td className="px-6 py-4">

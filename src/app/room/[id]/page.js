@@ -1,53 +1,71 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { io } from 'socket.io-client';
 import Container from '@/components/UI/Container';
 import { generateUniqueID } from '@/utils';
+import LoadingSpinner from '@/components/UI/LoadingSpinner';
+import ErrorMessage from '@/components/UI/ErrorMessage';
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 seconde
 
 export default function RoomJoinPage() {
   const { id } = useParams();
   const router = useRouter();
   const [roomExists, setRoomExists] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Vérifier si la room existe
-    const checkRoom = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
-        if (res.ok) {
-          setRoomExists(true);
+  const checkRoomExistence = useCallback(async (retries = 0) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
+      if (res.ok) {
+        setRoomExists(true);
+        if (!socket) {
           const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
             autoConnect: false,
           });
           setSocket(newSocket);
-        } else {
-          setRoomExists(false);
         }
-      } catch (error) {
-        console.error('Erreur lors de la vérification de la room :', error);
+      } else {
+        setRoomExists(false);
       }
-    };
-    checkRoom();
-  }, [id]);
+    } catch (err) {
+      if (retries < MAX_RETRIES) {
+        setTimeout(() => checkRoomExistence(retries + 1), RETRY_DELAY);
+      } else {
+        setError('Erreur lors de la vérification de la room, veuillez réessayer plus tard.');
+        setRoomExists(false);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id, socket]);
+
+  useEffect(() => {
+    checkRoomExistence();
+  }, [checkRoomExistence]);
 
   const handleJoinRoom = async () => {
     try {
       const userId = generateUniqueID();
       localStorage.setItem('userId', userId);
-      // Connexion au serveur Socket.io
       socket.connect();
       socket.emit('join-room', id, userId);
       localStorage.setItem('jamSessionId', id);
       router.push('/');
     } catch (error) {
-      console.error('Erreur lors de la connexion à la room');
+      setError('Erreur lors de la connexion à la room');
     }
   };
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
   if (roomExists === null) return <p className="text-white">Chargement...</p>;
   if (!roomExists) return <p className="text-white">⚠️ Cette room n'existe pas.</p>;
 
