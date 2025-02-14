@@ -13,30 +13,32 @@ const Settings = () => {
     setCurrentLang(lang);
     i18n.changeLanguage(lang);
     localStorage.setItem('lang', lang);
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }, [i18n]);
 
   const handleThemeChange = useCallback((isDark) => {
     setIsDarkMode(isDark);
     if (isDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', true);
+      localStorage.setItem('darkMode', 'true');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', false);
+      localStorage.setItem('darkMode', 'false');
     }
   }, []);
 
   useEffect(() => {
-    const storedLang = localStorage.getItem('lang');
+    // Assurer que la langue par défaut 'fr' est appliquée si aucune langue n'est stockée
+    const storedLang = localStorage.getItem('lang') || 'fr'; // 'fr' par défaut
     const storedDarkMode = localStorage.getItem('darkMode') === 'true';
 
-    if (storedLang) {
-      i18n.changeLanguage(storedLang);
-      setCurrentLang(storedLang);
-    } else {
-      i18n.changeLanguage('fr');
-      setCurrentLang('fr');
-    }
+    i18n.changeLanguage(storedLang);  // Applique la langue au chargement
+    setCurrentLang(storedLang);
+    
+    document.documentElement.lang = storedLang;
+    document.documentElement.dir = storedLang === 'ar' ? 'rtl' : 'ltr';
 
     setIsDarkMode(storedDarkMode);
     if (storedDarkMode) {
@@ -44,7 +46,7 @@ const Settings = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [i18n]);
+  }, [i18n]); // L'effet se déclenche uniquement une fois après le premier rendu
 
   const getButtonClass = (isActive) => {
     return `px-4 py-2 border text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${isActive ? 'bg-green-500' : 'bg-zinc-600'}`;
@@ -82,6 +84,7 @@ const Settings = () => {
               </button>
             </div>
           </div>
+
           <div>
             <h2 className="text-xl font-semibold dark:text-white">{t('theme')}</h2>
             <div className="mt-4 flex items-center space-x-4">

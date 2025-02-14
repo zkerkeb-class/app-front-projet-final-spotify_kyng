@@ -5,24 +5,25 @@ import Link from 'next/link';
 import Container from '@/components/UI/Container';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const LastPlayedPlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { t } = useTranslation();
 
   const fetchLastEcoutes = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getLastPlayedPlaylist();
-      
+
       const sortedPlaylists = response
         .sort((a, b) => new Date(b.lastPlayedDate) - new Date(a.lastPlayedDate))
         .slice(0, 20);
       setPlaylists(sortedPlaylists);
     } catch (err) {
-      setError('Erreur lors du chargement des données.');
-      console.error(err);
+      setError(t('albumLoadError'));
     } finally {
       setLoading(false);
     }
@@ -44,8 +45,13 @@ const LastPlayedPlaylistPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
-
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   return (
     <Container>

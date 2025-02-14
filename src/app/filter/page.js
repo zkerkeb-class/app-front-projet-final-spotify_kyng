@@ -4,8 +4,8 @@ import { useReducer, useEffect, useCallback } from 'react';
 import { advancedFilter } from '@/services/filter.service';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
-import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const initialState = {
   filters: {
@@ -23,6 +23,7 @@ const initialState = {
   loading: false,
   error: '',
 };
+const { t } = useTranslation();
 
 function reducer(state, action) {
   switch (action.type) {
@@ -44,7 +45,7 @@ const FilterPage = () => {
       const data = await advancedFilter(state.filters, state.sortOptions, state.page, state.limit);
       updateState({ tracks: data.data || [] });
     } catch {
-      updateState({ error: 'Erreur lors de la récupération des données', tracks: [] });
+      updateState({ error: t('errorLoadingData'), tracks: [] });
     } finally {
       updateState({ loading: false });
     }
@@ -115,7 +116,7 @@ const FilterPage = () => {
           </select>
         </div>
       </div>
-      
+
       <div>
         <ul className="space-y-4">
           {state.tracks.map((track) => (
