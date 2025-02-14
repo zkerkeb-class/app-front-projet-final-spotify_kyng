@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Container from '@/components/UI/Container';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const img = 'https://placehold.co/200x200/jpeg';
 
@@ -18,6 +19,8 @@ const ArtistDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
+    const { t } = useTranslation();
+  
 
   // Fonction pour récupérer les données de l'artiste et ses albums
   const fetchArtistData = useCallback(async () => {
@@ -31,8 +34,7 @@ const ArtistDetail = () => {
       const response = await getAlbumsByArtist(artistID);
       setAlbums(response.albums || []);
     } catch (err) {
-      setError('Erreur lors du chargement des données.');
-      console.error(err);
+      setError(t('albumLoadError'));
     } finally {
       setLoading(false);
     }

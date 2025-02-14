@@ -12,5 +12,9 @@ export default {
   filter: "تصفية",
   lastPlayed: "آخر قوائم التشغيل",
   mostPlayed: "أكثر القوائم تشغيلًا",
-  placeholderSearch: "ماذا تريد أن تستمع إليه أو تشاهده" 
+  placeholderSearch: "ماذا تريد أن تستمع إليه أو تشاهده" ,
+  retry: "إعادة المحاولة",
+  errorNetwork: "خطأ في الشبكة",
+  errorTimeout: "انتهت مهلة الاتصال",
+  albumLoadError: "خطأ في تحميل بيانات الألبوم."
 };
