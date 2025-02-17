@@ -105,7 +105,6 @@ const Home = () => {
           <PlaylistCard
             key={track._id || `track-${index}`}
             title={track.title}
-            img={getImage(track.imagePath)}
             desc={track.releaseYear}
             onCardClick={() => handleCardClick(track._id, 'track')}
             onPlayClick={() => handlePlayClick(track)}
@@ -120,7 +119,7 @@ const Home = () => {
             key={album._id || `album-${index}`}
             title={album.title}
             desc={album.artistId.name}
-            img={getImage(album.images[0].path)}
+            img={getImage(album.images?.[0]?.path)}
             onCardClick={() => handleCardClick(album._id, 'album')}
           />
         ))}

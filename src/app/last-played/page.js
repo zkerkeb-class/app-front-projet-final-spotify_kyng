@@ -66,7 +66,7 @@ const LastPlayedPlaylistPage = () => {
             >
               <div className="bg-gray-800 p-4 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl">
                 <img
-                  src={playlist.imagePath}
+                  src="playlist.png"                  
                   alt={playlist.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
