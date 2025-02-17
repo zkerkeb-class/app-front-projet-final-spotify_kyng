@@ -12,9 +12,13 @@ export default {
   filter: "Filter",
   lastPlayed: "Last Played Playlists",
   mostPlayed: "Most Played Playlists",
-  placeholderSearch: "What would you like to listen to or watch ?",
+  lastPlayedPlaylists: "Recently Played Playlists",
+  mostPlayedPlaylists: "Top Played Playlists",
+  placeholderSearch: "What would you like to listen to or watch?",
   retry: "Retry",
   errorNetwork: "Network error",
   errorTimeout: "Timeout error",
-  albumLoadError: "Error loading album data."
+  albumLoadError: "Error loading album data.",
+  playCount: "Play count",
+  noPlaylistsAvailable: "No playlists available",
 };

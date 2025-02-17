@@ -73,7 +73,7 @@ const Home = () => {
         return false;
       }
     };
-    return isValidUrl(imagePath) ? imagePath : 'default-image-path'
+    return isValidUrl(imagePath) ? imagePath : '/default-image-path.png';
   };
 
   const retryFetchData = () => {
@@ -87,40 +87,46 @@ const Home = () => {
   return (
     <Container>
       <h2 className="text-4xl mb-10">Les playlists du moment</h2>
+      
       <h3 className="text-2xl">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
-        {topArtists?.map((artist, index) => (
+        {topArtists?.map((artist) => (
           <ArtistCard
-            key={artist._id || `artist-${index}`}
+            key={artist._id}
             title={artist.name}
             img={getImage(artist.images[0]?.path)}
             desc={artist.totalListens}
             onCardClick={() => handleCardClick(artist._id, 'artist')}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"
           />
         ))}
       </HorizontalSlider>
+
       <h3 className="text-2xl mt-10">Top 10 des derniers sons</h3>
       <HorizontalSlider>
-        {tracks?.map((track, index) => (
+        {tracks?.map((track) => (
           <PlaylistCard
-            key={track._id || `track-${index}`}
+            key={track._id}
             title={track.title}
             desc={track.releaseYear}
             onCardClick={() => handleCardClick(track._id, 'track')}
             onPlayClick={() => handlePlayClick(track)}
             isPlaying={isPlaying && currentTrack?.id === track._id}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"
           />
         ))}
       </HorizontalSlider>
+
       <h3 className="text-2xl mt-10">Top 10 des albums récents</h3>
       <HorizontalSlider>
-        {topAlbums?.map((album, index) => (
+        {topAlbums?.map((album) => (
           <AlbumCard
-            key={album._id || `album-${index}`}
+            key={album._id}
             title={album.title}
             desc={album.artistId.name}
             img={getImage(album.images?.[0]?.path)}
             onCardClick={() => handleCardClick(album._id, 'album')}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"
           />
         ))}
       </HorizontalSlider>
