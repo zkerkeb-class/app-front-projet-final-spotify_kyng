@@ -1,5 +1,5 @@
 import React from 'react';
-import ImageComponent from '@/components/UI/Image';
+import ImageComponent from '@/components/UI/OptimizedImage';
 
 const Image = () => {
   return (

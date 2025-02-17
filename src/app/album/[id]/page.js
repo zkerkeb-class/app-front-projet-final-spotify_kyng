@@ -12,8 +12,9 @@ import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
+import OptimizedImage from '@/components/UI/OptimizedImage';
 
-const img = 'https://placehold.co/200x200/jpeg';
+const imagePlaceholder ='https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -73,7 +74,7 @@ const AlbumDetail = () => {
       }
     };
 
-    return isValidUrl(imagePath) ? imagePath : img;
+    return isValidUrl(imagePath) ? imagePath : imagePlaceholder;
   };
 
   const retryFetchData = () => {
@@ -83,7 +84,13 @@ const AlbumDetail = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   if (!album) {
     return <div className="text-gray-400 text-center text-xl py-4">Album introuvable.</div>;
@@ -99,13 +106,13 @@ const AlbumDetail = () => {
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black opacity-60 z-0" />
+      <div className="absolute inset-0 bg-black opacity-60 z-0" />
         <div className="flex items-center gap-6 relative z-10">
-          <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-white">
-            <img
-              src={getImage(album.image || img)}
-              alt="Album Cover"
-              className="w-full h-full object-cover"
+          <div className="w-32 h-32 rounded-lg overflow-hidden">
+            <OptimizedImage
+              src={getImage(album.images?.[0]?.path)}
+              alt={`${album.title} cover image`}
+              className="w-full h-full object-cover rounded-xl"
             />
           </div>
           <div className="text-center sm:text-left">
