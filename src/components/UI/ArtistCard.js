@@ -21,7 +21,6 @@ const ArtistCard = ({ title, desc, img, onCardClick }) => {
           className="w-full h-full object-cover rounded-full"
         />
       </div>
-
       <h4 className="mt-2.5 text-xs sm:text-sm leading-5 text-center font-semibold text-white transition-opacity duration-300 group-hover:opacity-90">
         {title}
       </h4>

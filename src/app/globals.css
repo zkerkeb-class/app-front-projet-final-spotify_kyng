@@ -65,3 +65,14 @@ body {
     scrollbar-width: none; /* Firefox */
   }
 }
+
+@media (max-width: 1024px) {
+  .sidebar {
+    height: calc(100vh - 80px); /* Laisse de la place pour le player */
+  }
+
+  .audio-player {
+    z-index: 50 !important;
+  }
+}
+

@@ -12,9 +12,13 @@ export default {
   filter: "Filtrer",
   lastPlayed: "Dernières playlists écoutées",
   mostPlayed: "Playlists les plus écoutées",
+  lastPlayedPlaylists: "Playlists récemment écoutées",
+  mostPlayedPlaylists: "Playlists les plus jouées",
   placeholderSearch: "Que souhaitez-vous écouter ou regarder ?",
   retry: "Réessayer",
-  errorNetwork: "Erreur de réseau",
-  errorTimeout: "Le délai d'attente est écoulé",
-  albumLoadError: "Erreur lors du chargement des données de l'album."
+  errorNetwork: "Erreur réseau",
+  errorTimeout: "Erreur de délai d'attente",
+  albumLoadError: "Erreur lors du chargement des données de l'album.",
+  playCount: "Nombre d'écoutes",
+  noPlaylistsAvailable: "Aucune playlist disponible",
 };

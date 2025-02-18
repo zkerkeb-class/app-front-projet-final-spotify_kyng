@@ -30,11 +30,10 @@ const Settings = () => {
   }, []);
 
   useEffect(() => {
-    // Assurer que la langue par défaut 'fr' est appliquée si aucune langue n'est stockée
-    const storedLang = localStorage.getItem('lang') || 'fr'; // 'fr' par défaut
+    const storedLang = localStorage.getItem('lang') || 'fr';
     const storedDarkMode = localStorage.getItem('darkMode') === 'true';
 
-    i18n.changeLanguage(storedLang);  // Applique la langue au chargement
+    i18n.changeLanguage(storedLang);
     setCurrentLang(storedLang);
     
     document.documentElement.lang = storedLang;
@@ -46,7 +45,7 @@ const Settings = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [i18n]); // L'effet se déclenche uniquement une fois après le premier rendu
+  }, [i18n]);
 
   const getButtonClass = (isActive) => {
     return `px-4 py-2 border text-white rounded-full hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${isActive ? 'bg-green-500' : 'bg-zinc-600'}`;

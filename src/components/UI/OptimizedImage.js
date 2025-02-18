@@ -37,7 +37,6 @@ const OptimizedImage = ({ src, alt, width, height, className = '' }) => {
       className={`relative overflow-hidden rounded-xl ${className}`}
       style={{ width: `${width}px`, height: `${height}px` }}
     >
-      {/* Placeholder Image */}
       <img
         src={imgPlaceholder}
         alt={alt}
@@ -45,8 +44,6 @@ const OptimizedImage = ({ src, alt, width, height, className = '' }) => {
           isLoaded ? 'opacity-0' : 'opacity-100'
         }`}
       />
-
-      {/* Main Image with Progressive Loading and Responsive Sizes */}
       <picture>
         <source
           srcSet={`${imageSrc}.avif 1x, ${imageSrc}.avif 2x, ${imageSrc}.avif 3x`}
