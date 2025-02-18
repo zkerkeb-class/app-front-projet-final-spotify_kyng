@@ -21,7 +21,6 @@ const AlbumCard = ({ title, desc, img, onCardClick }) => {
           className="w-full h-full object-cover rounded-xl"
         />
       </div>
-
       <div className="w-full text-left mt-2.5">
         <h4 className="text-sm font-semibold text-white transition-opacity duration-300 group-hover:opacity-90">
           {title}

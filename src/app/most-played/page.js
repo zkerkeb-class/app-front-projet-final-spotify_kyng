@@ -33,8 +33,8 @@ const MostPlayedPlaylistPage = () => {
   }, [t]);
 
   useEffect(() => {
-    fetchTopEcoutes();
-    const interval = setInterval(fetchTopEcoutes, 60000); // Mise à jour toutes les 60 secondes
+    fetchTopEcoutes();//
+    const interval = setInterval(fetchTopEcoutes, 60000);
     return () => clearInterval(interval);
   }, [fetchTopEcoutes]);
 

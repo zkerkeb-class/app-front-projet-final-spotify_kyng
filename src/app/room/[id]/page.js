@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
 
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 seconde
+const RETRY_DELAY = 1000;
 
 export default function RoomJoinPage() {
   const { id } = useParams();

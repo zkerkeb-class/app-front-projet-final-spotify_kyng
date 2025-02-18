@@ -1,9 +1,8 @@
 import React from 'react';
 
 const AudioWave = ({ isPlaying = false }) => {
-    // Heights for 3 bars when playing
     const animatedHeights = [12, 24, 12];
-    const staticHeight = 10; // All bars same height when not playing
+    const staticHeight = 10;
     
     return (
       <div className="w-8 h-8 flex items-end text-green-500">

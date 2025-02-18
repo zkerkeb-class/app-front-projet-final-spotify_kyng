@@ -1,5 +1,3 @@
-// services/advancedFilter.js
-
 export const advancedFilter = async (filters, sortOptions, page, limit) => {
   try {
     const queryParams = new URLSearchParams({
@@ -11,11 +9,10 @@ export const advancedFilter = async (filters, sortOptions, page, limit) => {
       }])
     });
 
-    // Ajoute chaque filtre en tant que paramètre de requête
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         if (Array.isArray(value)) {
-          queryParams.append(key, value.join(',')); // Pour les filtres multiples comme artist, album, etc.
+          queryParams.append(key, value.join(','));
         } else {
           queryParams.append(key, value);
         }
