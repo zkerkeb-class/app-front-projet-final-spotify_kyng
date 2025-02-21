@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 const OptimizedImage = ({ src, alt, width, height, className = '' }) => {
   const imgPlaceholder =
-    'https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
+    'http://localhost:8000/api/images/image/ad42942a-5918-4b0f-8611-d86b58041d7b-billie%20pic.jpeg';
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState(src);

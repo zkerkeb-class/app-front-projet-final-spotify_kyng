@@ -15,4 +15,4 @@ export const formatDuration = (duration) => {
 
 export const generateUniqueID = () => {
   return Math.random().toString(36).substr(2, 9);
-}
+};

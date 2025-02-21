@@ -1,8 +1,10 @@
 const searchService = async (query, page = 1, limit = 10) => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/search?q=${query}&page=${page}&limit=${limit}`);
-    console.log('Réponse de l\'API:', response);
-    
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/search?q=${query}&page=${page}&limit=${limit}`
+    );
+    console.log("Réponse de l'API:", response);
+
     if (!response.ok) {
       throw new Error('Erreur lors de la récupération des résultats');
     }

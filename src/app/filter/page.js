@@ -45,7 +45,7 @@ const FilterPage = () => {
       const data = await advancedFilter(state.filters, state.sortOptions, state.page, state.limit);
       updateState({ tracks: data.data || [] });
     } catch {
-      updateState({ error: t('albumLoadError'), tracks: [] });
+      updateState({ error: t('loadError'), tracks: [] });
     } finally {
       updateState({ loading: false });
     }

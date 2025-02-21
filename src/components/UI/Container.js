@@ -9,7 +9,7 @@ const Container = ({ children, gradFrom, gradTo, textColor, darkTextColor, ariaL
        ${textColor || 'text-gray-800 dark:text-gray-100'} 
        ${darkTextColor || ''}`}
       role="region"
-      aria-label={ariaLabel || "Content container"}
+      aria-label={ariaLabel || 'Content container'}
       aria-live="polite"
     >
       {children}

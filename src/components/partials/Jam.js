@@ -108,7 +108,7 @@ const Jam = ({ socket }) => {
       dispatch(setUsers([]));
       localStorage.removeItem('jamSessionId');
       localStorage.removeItem('userId');
-      
+
       window.location.reload();
     }
   };

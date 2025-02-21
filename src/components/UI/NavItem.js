@@ -9,7 +9,10 @@ const NavItem = ({ url, isActive, icon, name }) => {
       role="link"
       aria-label={`Navigation vers ${name}`}
     >
-      <div className="w-6 h-6 flex justify-center items-center" aria-hidden="true">
+      <div
+        className="w-6 h-6 flex justify-center items-center"
+        aria-hidden="true"
+      >
         {icon}
       </div>
       <p className="text-base m-0">{name}</p>

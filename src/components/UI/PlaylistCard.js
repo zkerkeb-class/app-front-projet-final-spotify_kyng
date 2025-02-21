@@ -2,7 +2,7 @@
 import React from 'react';
 import { FaPlay } from 'react-icons/fa';
 
-const PlaylistCard = ({ id, title, onCardClick, onPlayClick, desc }) => {
+const PlaylistCard = React.memo(({ id, title, onCardClick, onPlayClick, desc }) => {
   const handlePlayClick = (e) => {
     e.stopPropagation();
     onPlayClick(id);
@@ -23,19 +23,16 @@ const PlaylistCard = ({ id, title, onCardClick, onPlayClick, desc }) => {
       <div className="relative w-36 h-36 rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
         <img
           src="playlist.png"
-          alt="toto"
+          alt="Image de la playlist"
           className="w-full h-full object-cover rounded-xl"
         />
         <button
           className="absolute bottom-2 right-2 bg-green-500 rounded-full w-10 h-10 flex items-center justify-center opacity-0 transition-opacity duration-300 transform scale-90 group-hover:opacity-100 group-hover:scale-100 hover:bg-green-600 shadow-lg"
           onClick={handlePlayClick}
-          aria-label={`Play ${title}`}
+          aria-label={`Lire ${title}`}
           aria-pressed="false"
         >
-          <FaPlay
-            size={15}
-            className="text-white"
-          />
+          <FaPlay size={15} className="text-white" />
         </button>
       </div>
 
@@ -52,6 +49,6 @@ const PlaylistCard = ({ id, title, onCardClick, onPlayClick, desc }) => {
       </div>
     </div>
   );
-};
+});
 
 export default PlaylistCard;
