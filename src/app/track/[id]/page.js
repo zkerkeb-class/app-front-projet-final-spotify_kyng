@@ -44,7 +44,7 @@ const TrackDetail = () => {
 
         setTrack({ ...trackData, artistId: artist, albumId: album });
       } catch (err) {
-        setError(t('albumLoadError'));
+        setError(t('loadError'));
       } finally {
         setLoading(false);
       }

@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useRef } from 'react';
 
 const HorizontalSlider = ({ children }) => {
@@ -21,9 +22,19 @@ const HorizontalSlider = ({ children }) => {
   }, []);
 
   return (
-    <div className="overflow-hidden w-full" tabIndex="0" role="region" aria-label="Horizontal Slider" ref={sliderRef}>
+    <div
+      className="overflow-hidden w-full"
+      tabIndex="0"
+      role="region"
+      aria-label="Horizontal Slider"
+      ref={sliderRef}
+    >
       <div className="overflow-x-auto p-4">
-        <ul className="flex flex-nowrap" role="list" aria-label="Slider items">
+        <ul
+          className="flex flex-nowrap"
+          role="list"
+          aria-label="Slider items"
+        >
           {children}
         </ul>
       </div>

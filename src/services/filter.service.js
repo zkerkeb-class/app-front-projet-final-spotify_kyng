@@ -3,10 +3,12 @@ export const advancedFilter = async (filters, sortOptions, page, limit) => {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
-      sorts: JSON.stringify([{
-        field: sortOptions.field,
-        direction: sortOptions.order
-      }])
+      sorts: JSON.stringify([
+        {
+          field: sortOptions.field,
+          direction: sortOptions.order,
+        },
+      ]),
     });
 
     Object.entries(filters).forEach(([key, value]) => {

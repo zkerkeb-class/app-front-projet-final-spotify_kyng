@@ -9,14 +9,17 @@ const Settings = () => {
   const [currentLang, setCurrentLang] = useState('fr');
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const handleLanguageChange = useCallback((lang) => {
-    setCurrentLang(lang);
-    i18n.changeLanguage(lang);
-    localStorage.setItem('lang', lang);
+  const handleLanguageChange = useCallback(
+    (lang) => {
+      setCurrentLang(lang);
+      i18n.changeLanguage(lang);
+      localStorage.setItem('lang', lang);
 
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  }, [i18n]);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    },
+    [i18n]
+  );
 
   const handleThemeChange = useCallback((isDark) => {
     setIsDarkMode(isDark);
@@ -35,7 +38,7 @@ const Settings = () => {
 
     i18n.changeLanguage(storedLang);
     setCurrentLang(storedLang);
-    
+
     document.documentElement.lang = storedLang;
     document.documentElement.dir = storedLang === 'ar' ? 'rtl' : 'ltr';
 

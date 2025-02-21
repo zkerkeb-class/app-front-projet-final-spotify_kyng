@@ -11,7 +11,8 @@ import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
 import OptimizedImage from '@/components/UI/OptimizedImage';
 
-const imagePlaceholder ='https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
+const imagePlaceholder =
+  'https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
 
 const ArtistDetail = () => {
   const { id } = useParams();
@@ -21,7 +22,7 @@ const ArtistDetail = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { t } = useTranslation();
-  
+
   const fetchArtistData = useCallback(async () => {
     try {
       setLoading(true);
@@ -33,7 +34,7 @@ const ArtistDetail = () => {
       const response = await getAlbumsByArtist(artistID);
       setAlbums(response.albums || []);
     } catch (err) {
-      setError(t('albumLoadError'));
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,13 @@ const ArtistDetail = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   if (!artist) {
     return <div className="text-gray-400 text-center text-xl py-4">Artiste introuvable.</div>;

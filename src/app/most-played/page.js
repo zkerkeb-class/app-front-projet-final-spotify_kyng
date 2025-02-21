@@ -26,14 +26,14 @@ const MostPlayedPlaylistPage = () => {
 
       setPlaylists(response);
     } catch (err) {
-      setError(t('albumLoadError'));
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
   }, [t]);
 
   useEffect(() => {
-    fetchTopEcoutes();//
+    fetchTopEcoutes(); //
     const interval = setInterval(fetchTopEcoutes, 60000);
     return () => clearInterval(interval);
   }, [fetchTopEcoutes]);
@@ -49,7 +49,13 @@ const MostPlayedPlaylistPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   return (
     <Container>
@@ -60,7 +66,11 @@ const MostPlayedPlaylistPage = () => {
       {Array.isArray(sortedPlaylists) && sortedPlaylists.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {sortedPlaylists.map((playlist, index) => (
-            <Link href={`/track/${playlist._id}`} key={playlist._id || `playlist-${index}`} passHref>
+            <Link
+              href={`/track/${playlist._id}`}
+              key={playlist._id || `playlist-${index}`}
+              passHref
+            >
               <div className="group bg-gray-800 p-4 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer">
                 <div className="relative w-full h-48">
                   <Image

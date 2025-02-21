@@ -20,32 +20,35 @@ export default function RoomJoinPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const checkRoomExistence = useCallback(async (retries = 0) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
-      if (res.ok) {
-        setRoomExists(true);
-        if (!socket) {
-          const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-            autoConnect: false,
-          });
-          setSocket(newSocket);
+  const checkRoomExistence = useCallback(
+    async (retries = 0) => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/room/${id}`);
+        if (res.ok) {
+          setRoomExists(true);
+          if (!socket) {
+            const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+              autoConnect: false,
+            });
+            setSocket(newSocket);
+          }
+        } else {
+          setRoomExists(false);
         }
-      } else {
-        setRoomExists(false);
+      } catch (err) {
+        if (retries < MAX_RETRIES) {
+          setTimeout(() => checkRoomExistence(retries + 1), RETRY_DELAY);
+        } else {
+          setError('Erreur lors de la vérification de la room, veuillez réessayer plus tard.');
+          setRoomExists(false);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      if (retries < MAX_RETRIES) {
-        setTimeout(() => checkRoomExistence(retries + 1), RETRY_DELAY);
-      } else {
-        setError('Erreur lors de la vérification de la room, veuillez réessayer plus tard.');
-        setRoomExists(false);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [id, socket]);
+    },
+    [id, socket]
+  );
 
   useEffect(() => {
     checkRoomExistence();
@@ -65,7 +68,13 @@ export default function RoomJoinPage() {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
   if (roomExists === null) return <p className="text-white">Chargement...</p>;
   if (!roomExists) return <p className="text-white">⚠️ Cette room n'existe pas.</p>;
 
@@ -73,7 +82,9 @@ export default function RoomJoinPage() {
     <Container>
       <div className="p-6 bg-zinc-800 text-white rounded-lg shadow-lg max-w-lg mx-auto">
         <h1 className="text-2xl font-bold text-center mb-4">Rejoindre la Room</h1>
-        <p className="text-center text-lg mb-6">Vous êtes sur le point de rejoindre la Room : <span className="font-semibold">{id}</span></p>
+        <p className="text-center text-lg mb-6">
+          Vous êtes sur le point de rejoindre la Room : <span className="font-semibold">{id}</span>
+        </p>
 
         <button
           onClick={handleJoinRoom}

@@ -88,7 +88,7 @@ const PlayerControls = ({
     } finally {
       setIsCreatingJam(false); // Fin de la création de la session Jam
     }
-  };  
+  };
 
   // Effet pour vérifier la visibilité de Jam
   useEffect(() => {
@@ -197,7 +197,10 @@ const PlayerControls = ({
         </button>
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75" aria-live="assertive">
+        <div
+          className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75"
+          aria-live="assertive"
+        >
           <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin" />
         </div>
       )}

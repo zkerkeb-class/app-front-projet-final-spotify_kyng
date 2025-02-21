@@ -22,7 +22,7 @@ const networkFirstHandler = new NetworkFirst({
         if (response && response.ok) {
           return response;
         }
-        return null;  // Pas de mise en cache si la réponse est invalide
+        return null; // Pas de mise en cache si la réponse est invalide
       },
     },
   ],
@@ -38,7 +38,7 @@ const cacheFirstHandler = new CacheFirst({
         if (response && response.ok) {
           return response;
         }
-        return null;  // Pas de mise en cache si la réponse est invalide
+        return null; // Pas de mise en cache si la réponse est invalide
       },
     },
   ],

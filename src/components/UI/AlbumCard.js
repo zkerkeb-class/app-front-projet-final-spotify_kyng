@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import OptimizedImage from './OptimizedImage';
+import Image from 'next/image';
 
-const AlbumCard = ({ title, desc, img, onCardClick }) => {
+const AlbumCard = React.memo(({ title, desc, imagePath, onCardClick }) => {
   return (
     <div
       className="p-5 relative rounded-xl w-full max-w-xs flex flex-col items-center text-white hover:bg-zinc-800 transition duration-300 ease-in-out cursor-pointer group"
@@ -15,10 +15,12 @@ const AlbumCard = ({ title, desc, img, onCardClick }) => {
       }}
     >
       <div className="relative w-36 h-36 rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
-        <OptimizedImage
-          src={img}
-          alt={`${title} cover image`}
+        <Image
+          src={imagePath}
+          alt={`Image de ${title}`}
           className="w-full h-full object-cover rounded-xl"
+          width={144}
+          height={144}
         />
       </div>
       <div className="w-full text-left mt-2.5">
@@ -31,6 +33,6 @@ const AlbumCard = ({ title, desc, img, onCardClick }) => {
       </div>
     </div>
   );
-};
+});
 
 export default AlbumCard;

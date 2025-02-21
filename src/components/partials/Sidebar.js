@@ -25,16 +25,46 @@ const SideBar = ({ isSidebarOpen, closeSidebar }) => {
       <nav className="flex flex-col justify-between h-full">
         <div className="flex flex-col gap-6">
           <ul className="space-y-3">
-            <NavItem url="/" isActive={pathname === '/'} icon={<Home />} name={t('home')} />
-            <NavItem url="/search" isActive={pathname === '/search'} icon={<Search />} name={t('search')} />
-            <NavItem url="/filter" isActive={pathname === '/filter'} icon={<Filter />} name={t('filter')} />
+            <NavItem
+              url="/"
+              isActive={pathname === '/'}
+              icon={<Home />}
+              name={t('home')}
+            />
+            <NavItem
+              url="/search"
+              isActive={pathname === '/search'}
+              icon={<Search />}
+              name={t('search')}
+            />
+            <NavItem
+              url="/filter"
+              isActive={pathname === '/filter'}
+              icon={<Filter />}
+              name={t('filter')}
+            />
           </ul>
           <ul className="space-y-3">
-            <NavItem url="/last-played" isActive={pathname === '/last-played'} icon={<Clock />} name={t('lastPlayed')} />
-            <NavItem url="/most-played" isActive={pathname === '/most-played'} icon={<TrendingUp />} name={t('mostPlayed')} />
+            <NavItem
+              url="/last-played"
+              isActive={pathname === '/last-played'}
+              icon={<Clock />}
+              name={t('lastPlayed')}
+            />
+            <NavItem
+              url="/most-played"
+              isActive={pathname === '/most-played'}
+              icon={<TrendingUp />}
+              name={t('mostPlayed')}
+            />
           </ul>
           <ul className="space-y-3">
-            <NavItem url="/settings" isActive={pathname === '/settings'} icon={<Settings />} name={t('settings')} />
+            <NavItem
+              url="/settings"
+              isActive={pathname === '/settings'}
+              icon={<Settings />}
+              name={t('settings')}
+            />
           </ul>
         </div>
       </nav>

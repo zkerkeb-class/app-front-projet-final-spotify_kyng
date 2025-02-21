@@ -24,7 +24,7 @@ const LastPlayedPlaylistPage = () => {
         .slice(0, 20);
       setPlaylists(sortedPlaylists);
     } catch (err) {
-      setError(t('albumLoadError'));
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,13 @@ const LastPlayedPlaylistPage = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   return (
     <Container>

@@ -14,7 +14,8 @@ import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
 import OptimizedImage from '@/components/UI/OptimizedImage';
 
-const imagePlaceholder ='https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
+const imagePlaceholder =
+  'https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
 
 const AlbumDetail = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const AlbumDetail = () => {
       const response = await getTracksByAlbum(albumID);
       dispatch(setTracks(response.tracks || []));
     } catch (err) {
-      setError(t('albumLoadError'));
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
@@ -106,7 +107,7 @@ const AlbumDetail = () => {
           backgroundPosition: 'center',
         }}
       >
-      <div className="absolute inset-0 bg-black opacity-60 z-0" />
+        <div className="absolute inset-0 bg-black opacity-60 z-0" />
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-32 h-32 rounded-lg overflow-hidden">
             <OptimizedImage

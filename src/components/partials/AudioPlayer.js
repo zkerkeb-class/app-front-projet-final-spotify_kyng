@@ -37,7 +37,7 @@ const AudioPlayer = ({ socket }) => {
 
   const playerRef = useRef(null);
   const audioRef = useRef(null);
-  
+
   useEffect(() => {
     if (socket) {
       socket.on('play', () => {

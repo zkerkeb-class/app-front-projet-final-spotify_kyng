@@ -1,9 +1,14 @@
 import React from 'react';
 
-const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) =>{
-  return  (
+const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) => {
+  return (
     <div className="flex items-center space-x-2">
-      <span className="text-gray-400 text-sm" aria-label="Current time">{formatTime(currentTime ?? 0)}</span>
+      <span
+        className="text-gray-400 text-sm"
+        aria-label="Current time"
+      >
+        {formatTime(currentTime ?? 0)}
+      </span>
       <input
         type="range"
         min="0"
@@ -16,9 +21,14 @@ const ProgressBar = ({ currentTime, duration, handleSeek, formatTime }) =>{
         }}
         aria-label="Progress bar"
       />
-      <span className="text-gray-400 text-sm" aria-label="Duration">{formatTime(duration)}</span>
+      <span
+        className="text-gray-400 text-sm"
+        aria-label="Duration"
+      >
+        {formatTime(duration)}
+      </span>
     </div>
-  )
+  );
 };
 
 export default ProgressBar;
