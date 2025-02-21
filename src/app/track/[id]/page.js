@@ -1,19 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { getTrackById } from '@/services/track.service';
 import { getAlbumById } from '@/services/album.service';
 import { getArtistById } from '@/services/artist.service';
 import { FaPlay, FaPause } from 'react-icons/fa';
 import Link from 'next/link';
-import Container from '@/components/UI/Container';
 import { useTranslation } from 'react-i18next';
-
 import { setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import LoadingSpinner from '@/components/UI/LoadingSpinner';
-const img = 'https://placehold.co/200x200/jpeg';
+import Container from '@/components/UI/Container';
+
+const LoadingSpinner = React.lazy(() => import('@/components/UI/LoadingSpinner'));
 
 const TrackDetail = () => {
   const { id } = useParams();
@@ -51,7 +50,7 @@ const TrackDetail = () => {
     };
 
     fetchTrack();
-  }, [id]);
+  }, [id, t]);
 
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60);
@@ -68,19 +67,29 @@ const TrackDetail = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
-
-  if (error) {
-    return <div className="text-red-500 text-center text-xl py-4">{error}</div>;
-  }
+  if (loading)
+    return (
+      <Suspense fallback={<div className="text-center p-6">Chargement de l'album...</div>}>
+        <LoadingSpinner />
+      </Suspense>
+    );
+  if (error)
+    return (
+      <Suspense fallback={<div className="text-center p-6">Chargement des données...</div>}>
+        <ErrorMessage
+          error={error}
+          onRetry={retryFetchData}
+        />
+      </Suspense>
+    );
 
   if (!track) {
-    return <div className="text-gray-400 text-center text-xl py-4">Piste introuvable.</div>;
+    return <div className="text-gray-400 text-center text-xl py-4">{t('trackNotFound')}</div>;
   }
 
   return (
     <div className="min-h-screen">
-      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-gray-900 via-black to-black p-6 rounded-t-lg shadow-lg">
+      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-white via-white to-gray-900 dark:from-gray-900 dark:via-black  dark:to-black p-6 rounded-t-lg shadow-lg">
         <div className="flex items-center gap-6 relative z-10">
           <div className="text-center sm:text-left">
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{track.title}</h2>

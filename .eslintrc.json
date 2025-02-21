@@ -31,7 +31,8 @@
     "import/no-mutable-exports": "error", // Empêcher les exports modifiables
     "react-hooks/exhaustive-deps": "error", // Vérifier les dépendances des hooks
     "prettier/prettier": "error", // Vérifier le style avec Prettier
-    "no-unused-imports": "error" // Vérifier les imports inutilisés
+    "no-unused-imports": "error", // Vérifier les imports inutilisés
+    "react/prop-types": "off"
   },
   "settings": {
     "react": {

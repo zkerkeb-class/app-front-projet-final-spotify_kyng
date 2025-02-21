@@ -1,4 +1,4 @@
-import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import { NetworkFirst } from 'workbox-strategies';
 import { precacheAndRoute } from 'workbox-precaching';
 
 // Pré-cache des ressources essentielles (manifest, CSS, JS, etc.)
@@ -15,22 +15,6 @@ precacheAndRoute([
 // Stratégie de mise en cache pour les images
 const networkFirstHandler = new NetworkFirst({
   cacheName: 'image-cache',
-  plugins: [
-    {
-      cacheWillUpdate: async ({ request, response }) => {
-        // Si la réponse est valide, on la met en cache
-        if (response && response.ok) {
-          return response;
-        }
-        return null; // Pas de mise en cache si la réponse est invalide
-      },
-    },
-  ],
-});
-
-// Stratégie de mise en cache pour les autres ressources, en utilisant CacheFirst
-const cacheFirstHandler = new CacheFirst({
-  cacheName: 'asset-cache',
   plugins: [
     {
       cacheWillUpdate: async ({ request, response }) => {

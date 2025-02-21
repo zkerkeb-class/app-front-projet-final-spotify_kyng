@@ -1,18 +1,20 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { getAlbumById } from '@/services/album.service';
 import { getTracksByAlbum } from '@/services/track.service';
 import { FaPlay, FaPause, FaClock } from 'react-icons/fa';
 import Link from 'next/link';
-import Container from '@/components/UI/Container';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setTracks, setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
-import LoadingSpinner from '@/components/UI/LoadingSpinner';
-import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
-import OptimizedImage from '@/components/UI/OptimizedImage';
+import Container from '@/components/UI/Container';
+import { getImageUrl } from '@/services/image.service';
+import Image from 'next/image';
+
+const LoadingSpinner = React.lazy(() => import('@/components/UI/LoadingSpinner'));
+const ErrorMessage = React.lazy(() => import('@/components/UI/ErrorMessage'));
 
 const imagePlaceholder =
   'https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
@@ -26,6 +28,7 @@ const AlbumDetail = () => {
   const { isPlaying, currentTrack, tracks } = useAppSelector((state) => state.player);
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const [imageUrl, setImageUrl] = useState(imagePlaceholder);
 
   const fetchAlbum = useCallback(async () => {
     if (!id || isRetrying) return;
@@ -37,6 +40,22 @@ const AlbumDetail = () => {
       setAlbum(albumData);
 
       const albumID = albumData._id;
+      const imageAlbum = albumData.coverImageUrls;
+      console.log('imageAlbum :', imageAlbum);
+
+      const getImage = (imageType) => {
+        if (imageType === 'cloudfront') {
+          return getImageUrl(imageAlbum.cloudfront);
+        } else if (imageType === 'local') {
+          return getImageUrl(imageAlbum.local);
+        }
+        return getImageUrl('');
+      };
+
+      const url = getImage('local');
+      setImageUrl(url);
+      console.log(url);
+
       const response = await getTracksByAlbum(albumID);
       dispatch(setTracks(response.tracks || []));
     } catch (err) {
@@ -84,13 +103,20 @@ const AlbumDetail = () => {
     setIsRetrying(false);
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading)
+    return (
+      <Suspense fallback={<div className="text-center p-6">Chargement de l'album...</div>}>
+        <LoadingSpinner />
+      </Suspense>
+    );
   if (error)
     return (
-      <ErrorMessage
-        error={error}
-        onRetry={retryFetchData}
-      />
+      <Suspense fallback={<div className="text-center p-6">Chargement des données...</div>}>
+        <ErrorMessage
+          error={error}
+          onRetry={retryFetchData}
+        />
+      </Suspense>
     );
 
   if (!album) {
@@ -99,25 +125,22 @@ const AlbumDetail = () => {
 
   return (
     <div className="min-h-screen">
-      <div
-        className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-gray-900 via-black to-black p-6 rounded-t-lg shadow-lg"
-        style={{
-          backgroundImage: `url(${getImage(album.images?.[0]?.path)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-black opacity-60 z-0" />
+      <div className="relative w-full h-[350px] flex items-end bg-gradient-to-b from-white via-white to-gray-900 dark:from-gray-900 dark:via-black  dark:to-black p-6 rounded-t-lg shadow-lg">
+        <div className="absolute inset-0 bg-black opacity-40 dark:opacity-60 z-0" />
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-32 h-32 rounded-lg overflow-hidden">
-            <OptimizedImage
-              src={getImage(album.images?.[0]?.path)}
-              alt={`${album.title} cover image`}
-              className="w-full h-full object-cover rounded-xl"
-            />
+            <Suspense fallback={<div className="text-center p-6">Chargement de l'image...</div>}>
+              <Image
+                src={imageUrl}
+                alt={`Image de ${album.title}`}
+                className="w-full h-full object-cover rounded-lg"
+                width={144} // Ajuste la taille selon ton besoin
+                height={144}
+              />
+            </Suspense>
           </div>
-          <div className="text-center sm:text-left">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white">{album.title}</h2>
+          <div className="text-center sm:text-left text-white">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-semibold">{album.title}</h2>
             <p className="text-lg text-gray-300">{album.artistId.name}</p>
             <p className="text-sm text-gray-400">
               {new Date(album.releaseDate).toLocaleDateString()}
@@ -125,6 +148,7 @@ const AlbumDetail = () => {
           </div>
         </div>
       </div>
+
       <Container>
         <div className="p-6 flex-grow">
           <h3 className="text-3xl font-semibold mb-6">Pistes</h3>

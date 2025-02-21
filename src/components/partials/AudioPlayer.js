@@ -85,7 +85,7 @@ const AudioPlayer = ({ socket }) => {
           duration: formatTime(selectedTrack.duration),
           artist: artist?.name || 'Unknown Artist',
           album: album?.title || 'Unknown Album',
-          artwork: selectedTrack.albumId?.images?.[0]?.path || '/images/default-artwork.webp',
+          artwork: selectedTrack.albumId?.images?.[0]?.path || '/playlist.png',
         });
       } catch (error) {
         console.error('Error fetching audio stream:', error);

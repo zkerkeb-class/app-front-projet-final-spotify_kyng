@@ -104,7 +104,7 @@ const SearchPage = () => {
 
   return (
     <Container>
-      <h1 className="text-4xl font-extrabold mb-6 text-center">Rechercher</h1>
+      <h1 className="text-3xl sm:text-xl font-extrabold mb-6 text-center">Rechercher</h1>
       <input
         type="text"
         value={query}

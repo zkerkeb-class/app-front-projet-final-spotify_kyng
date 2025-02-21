@@ -57,11 +57,11 @@ const Settings = () => {
   return (
     <Container>
       <div className="dark:text-white text-black">
-        <h1 className="text-3xl font-bold dark:text-white">{t('settings')}</h1>
+        <h1 className="text-3xl sm:text-xl font-extrabold dark:text-white">{t('settings')}</h1>
 
         <div className="mt-8 space-y-6">
           <div>
-            <h2 className="text-xl font-semibold dark:text-white">{t('language')}</h2>
+            <h2 className="dark:text-white">{t('language')}</h2>
             <div className="flex gap-4 mt-4">
               <button
                 onClick={() => handleLanguageChange('en')}
@@ -88,7 +88,7 @@ const Settings = () => {
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold dark:text-white">{t('theme')}</h2>
+            <h2 className="dark:text-white">{t('theme')}</h2>
             <div className="mt-4 flex items-center space-x-4">
               <button
                 onClick={() => handleThemeChange(false)}

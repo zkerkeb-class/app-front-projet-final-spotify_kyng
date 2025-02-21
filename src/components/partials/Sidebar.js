@@ -23,8 +23,8 @@ const SideBar = ({ isSidebarOpen, closeSidebar }) => {
       </button>
 
       <nav className="flex flex-col justify-between h-full">
-        <div className="flex flex-col gap-6">
-          <ul className="space-y-3">
+        <div className="flex flex-col">
+          <ul className="">
             <NavItem
               url="/"
               isActive={pathname === '/'}

@@ -1,11 +1,12 @@
 'use client';
 
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, Suspense, lazy } from 'react';
 import { advancedFilter } from '@/services/filter.service';
 import Container from '@/components/UI/Container';
 import Link from 'next/link';
-import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
+
+const ErrorMessage = lazy(() => import('@/components/UI/ErrorMessage'));
 
 const initialState = {
   filters: {
@@ -58,15 +59,17 @@ const FilterPage = () => {
 
   if (state.error)
     return (
-      <ErrorMessage
-        error={state.error}
-        onRetry={fetchData}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ErrorMessage
+          error={state.error}
+          onRetry={fetchData}
+        />
+      </Suspense>
     );
 
   return (
     <Container>
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-center text-black dark:text-white">
+      <h1 className="text-3xl sm:text-xl font-extrabold mb-6 text-center text-black dark:text-white">
         🎵 Filtres avancés 🎵
       </h1>
 
