@@ -119,7 +119,7 @@ const Jam = ({ socket }) => {
 
   return (
     <div className="flex flex-col gap-6 p-4 w-full max-w-xl mx-auto text-white">
-      <h2 className="text-3xl font-bold text-center text-black dark:text-white">Jam Session</h2>
+      <h2 className="text-3xl text-center text-white">Jam Session</h2>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-800 p-4 rounded-lg">
         <div className="flex items-center gap-2">
           <FaUser className="text-gray-400" />

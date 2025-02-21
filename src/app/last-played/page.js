@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, Suspense, lazy } from 'react';
 import { getLastPlayedPlaylist } from '@/services/playlist.service';
 import Link from 'next/link';
 import Image from 'next/image';
 import Container from '@/components/UI/Container';
-import LoadingSpinner from '@/components/UI/LoadingSpinner';
-import ErrorMessage from '@/components/UI/ErrorMessage';
 import { useTranslation } from 'react-i18next';
+
+// Chargement paresseux pour les composants
+const LoadingSpinner = lazy(() => import('@/components/UI/LoadingSpinner'));
+const ErrorMessage = lazy(() => import('@/components/UI/ErrorMessage'));
 
 const LastPlayedPlaylistPage = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -43,18 +45,25 @@ const LastPlayedPlaylistPage = () => {
     fetchLastEcoutes();
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading)
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoadingSpinner />
+      </Suspense>
+    );
   if (error)
     return (
-      <ErrorMessage
-        error={error}
-        onRetry={retryFetchData}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ErrorMessage
+          error={error}
+          onRetry={retryFetchData}
+        />
+      </Suspense>
     );
 
   return (
     <Container>
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-center text-black dark:text-white">
+      <h1 className="text-3xl sm:text-xl font-extrabold mb-6 text-center text-black dark:text-white">
         🎵 {t('lastPlayedPlaylists')} 🎵
       </h1>
 
@@ -76,7 +85,7 @@ const LastPlayedPlaylistPage = () => {
                     className="rounded-lg"
                   />
                 </div>
-                <h2 className="mt-3 text-lg font-semibold text-white truncate">{playlist.title}</h2>
+                <h2 className="mt-3 text-white truncate">{playlist.title}</h2>
                 <p className="text-sm text-gray-400">{playlist.releaseYear}</p>
               </div>
             </Link>
@@ -84,7 +93,7 @@ const LastPlayedPlaylistPage = () => {
         </div>
       ) : (
         <div className="text-center text-xl text-gray-500">
-          <p>😔 {t('noPlaylistsAvailable')}</p>
+          <p>{t('noPlaylistsAvailable')} 😔</p>
         </div>
       )}
     </Container>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 const OptimizedImage = ({ src, alt, width, height, className = '' }) => {
   const imgPlaceholder =
-    'http://localhost:8000/api/images/image/ad42942a-5918-4b0f-8611-d86b58041d7b-billie%20pic.jpeg';
+    'http://localhost:8000/api/images/image/ad42942a-5918-4b0f-8611-d86b58041d7b-billie%20pic.jpeg'; // Placeholder image en basse résolution.
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState(src);

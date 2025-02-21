@@ -32,7 +32,10 @@ const PlaylistCard = React.memo(({ id, title, onCardClick, onPlayClick, desc }) 
           aria-label={`Lire ${title}`}
           aria-pressed="false"
         >
-          <FaPlay size={15} className="text-white" />
+          <FaPlay
+            size={15}
+            className="text-white"
+          />
         </button>
       </div>
 

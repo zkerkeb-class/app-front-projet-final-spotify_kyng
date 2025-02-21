@@ -18,7 +18,7 @@ export default {
   retry: 'Réessayer',
   errorNetwork: 'Erreur réseau',
   errorTimeout: "Erreur de délai d'attente",
-  loadError: "Erreur lors du chargement des données.",
+  loadError: 'Erreur lors du chargement des données.',
   playCount: "Nombre d'écoutes",
   noPlaylistsAvailable: 'Aucune playlist disponible',
 };

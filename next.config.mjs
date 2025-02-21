@@ -1,22 +1,3 @@
-// const withPWA = require("next-pwa")({
-//   dest: "public",
-//   disable: process.env.NODE_ENV === "development", // Désactiver en dev
-//   // Ne pas mettre `swcMinify` ici !
-// });
-
-// module.exports = withPWA({
-//   reactStrictMode: true,
-//   async redirects() {
-//     return [
-//       {
-//         source: "/api/images/:filename", // Exemple d'API pour les images
-//         destination: "https://back-end-projet-final-spotify-kyng.onrender.com/api/images/image/:filename", // Ton backend
-//         permanent: false,
-//       },
-//     ];
-//   },
-// });
-
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const nextConfig = {

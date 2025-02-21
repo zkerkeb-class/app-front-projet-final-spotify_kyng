@@ -19,8 +19,8 @@ const ArtistCard = React.memo(({ title, desc, imagePath, onCardClick }) => {
           src={imagePath}
           alt={`Image de ${title}`}
           className="w-full h-full object-cover rounded-full"
-          width={144}
-          height={144}
+          width={144} // Ajustez la taille selon votre besoin
+          height={144} // Ajustez la taille selon votre besoin
         />
       </div>
       <h4 className="mt-2.5 text-xs sm:text-sm leading-5 text-center font-semibold text-white">
