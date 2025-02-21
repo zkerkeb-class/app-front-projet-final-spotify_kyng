@@ -1,21 +1,20 @@
-// services/advancedFilter.js
-
 export const advancedFilter = async (filters, sortOptions, page, limit) => {
   try {
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
-      sorts: JSON.stringify([{
-        field: sortOptions.field,
-        direction: sortOptions.order
-      }])
+      sorts: JSON.stringify([
+        {
+          field: sortOptions.field,
+          direction: sortOptions.order,
+        },
+      ]),
     });
 
-    // Ajoute chaque filtre en tant que paramètre de requête
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         if (Array.isArray(value)) {
-          queryParams.append(key, value.join(',')); // Pour les filtres multiples comme artist, album, etc.
+          queryParams.append(key, value.join(','));
         } else {
           queryParams.append(key, value);
         }

@@ -1,31 +1,30 @@
 'use client';
+
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import Image from 'next/image';
-import {
-  CirclePlus,
-  Home,
-  LibraryBig,
-  Search,
-  Settings,
-  Filter,
-  Clock,
-  TrendingUp,
-} from 'lucide-react'; // Ajout des nouvelles icônes
+import { Home, Search, Filter, Clock, TrendingUp, Settings, X } from 'lucide-react';
 import NavItem from '@/components/UI/NavItem';
 
-const SideBar = () => {
+const SideBar = ({ isSidebarOpen, closeSidebar }) => {
   const { t } = useTranslation();
   const pathname = usePathname();
 
   return (
-    <aside className="bg-zinc-700 dark:bg-zinc-800 rounded-lg py-5 px-2 min-w-60 lg:min-w-80">
-      <nav className="flex flex-col justify-between h-full lg:h-screen">
-        <div className="flex flex-col gap-5">
-          <ul
-            className="bg-zinc-800 dark:bg-zinc-700 rounded"
-            aria-label="Navigation principale"
-          >
+    <aside
+      className={`bg-zinc-800 dark:bg-black py-6 px-5 flex flex-col z-50 fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out
+      ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+    >
+      <button
+        onClick={closeSidebar}
+        className="text-gray-400 hover:text-white transition-all duration-200 absolute top-5 right-5 lg:hidden"
+        aria-label={t('close')}
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      <nav className="flex flex-col justify-between h-full">
+        <div className="flex flex-col gap-6">
+          <ul className="space-y-3">
             <NavItem
               url="/"
               isActive={pathname === '/'}
@@ -36,7 +35,8 @@ const SideBar = () => {
               url="/search"
               isActive={pathname === '/search'}
               icon={<Search />}
-              name={t('search')}            />
+              name={t('search')}
+            />
             <NavItem
               url="/filter"
               isActive={pathname === '/filter'}
@@ -44,11 +44,7 @@ const SideBar = () => {
               name={t('filter')}
             />
           </ul>
-          <ul
-            className="bg-zinc-800 dark:bg-zinc-700 rounded"
-            aria-label="Bibliothèque et Playlists"
-          >
-            {/* Nouvelle entrée pour "Dernières playlists écoutées" */}
+          <ul className="space-y-3">
             <NavItem
               url="/last-played"
               isActive={pathname === '/last-played'}
@@ -62,15 +58,12 @@ const SideBar = () => {
               name={t('mostPlayed')}
             />
           </ul>
-          <ul
-            className="bg-zinc-800 dark:bg-zinc-700 rounded"
-            aria-label="Paramètres"
-          >
+          <ul className="space-y-3">
             <NavItem
               url="/settings"
-              name={t('settings')}
               isActive={pathname === '/settings'}
               icon={<Settings />}
+              name={t('settings')}
             />
           </ul>
         </div>

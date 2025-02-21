@@ -6,28 +6,32 @@
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "requireConfigFile": false,
     "ecmaVersion": "latest",
     "sourceType": "module",
     "ecmaFeatures": {
       "jsx": true
     }
   },
+  "ignorePatterns": ["public/*"],
   "extends": [
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:react/recommended",
-
     "plugin:react-hooks/recommended"
   ],
   "plugins": ["prettier", "import", "react-hooks"],
   "rules": {
-    "no-unused-vars": "error",
-    "no-unreachable": "error",
-    "no-console": "warn",
-    "no-else-return": "error",
-    "import/no-duplicates": "error",
-    "react-hooks/exhaustive-deps": "error",
-    "prettier/prettier": "error"
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }], // Afficher une erreur pour les variables inutilisées
+    "no-unreachable": "error", // Afficher une erreur pour le code inaccessible
+    "no-console": "warn", // Avertir sur les consoles
+    "no-else-return": "error", // Ne pas utiliser else après un return
+    "import/no-duplicates": "error", // Vérifier les imports en double
+    "import/no-unused-modules": "error", // Afficher une erreur si des modules ne sont pas utilisés
+    "import/no-mutable-exports": "error", // Empêcher les exports modifiables
+    "react-hooks/exhaustive-deps": "error", // Vérifier les dépendances des hooks
+    "prettier/prettier": "error", // Vérifier le style avec Prettier
+    "no-unused-imports": "error" // Vérifier les imports inutilisés
   },
   "settings": {
     "react": {

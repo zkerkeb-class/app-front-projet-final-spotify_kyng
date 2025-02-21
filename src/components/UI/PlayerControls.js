@@ -82,6 +82,7 @@ const PlayerControls = ({
       dispatch(setSessionId(jamSession.id));
       localStorage.setItem('jamSessionId', jamSession.id);
       setIsJamVisible(true); // Afficher Jam immédiatement après avoir créé la session
+      window.location.reload(); // Recharger la page après la création de la session Jam
     } catch (error) {
       console.error('Erreur lors de la création de la session de jam :', error);
     } finally {
@@ -196,15 +197,11 @@ const PlayerControls = ({
         </button>
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75" aria-live="assertive">
+        <div
+          className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75"
+          aria-live="assertive"
+        >
           <div className="spinner border-4 border-green-500 border-t-transparent rounded-full w-12 h-12 animate-spin" />
-        </div>
-      )}
-      {/* Affichage conditionnel de Jam */}
-      {isJamVisible && (
-        <div className="jam-session">
-          {/* Afficher ici la session Jam */}
-          <p>Session Jam en cours...</p>
         </div>
       )}
     </div>

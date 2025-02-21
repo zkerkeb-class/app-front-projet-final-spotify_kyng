@@ -9,34 +9,38 @@ const Settings = () => {
   const [currentLang, setCurrentLang] = useState('fr');
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const handleLanguageChange = useCallback((lang) => {
-    setCurrentLang(lang);
-    i18n.changeLanguage(lang);
-    localStorage.setItem('lang', lang);
-  }, [i18n]);
+  const handleLanguageChange = useCallback(
+    (lang) => {
+      setCurrentLang(lang);
+      i18n.changeLanguage(lang);
+      localStorage.setItem('lang', lang);
+
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    },
+    [i18n]
+  );
 
   const handleThemeChange = useCallback((isDark) => {
     setIsDarkMode(isDark);
     if (isDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', true);
+      localStorage.setItem('darkMode', 'true');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', false);
+      localStorage.setItem('darkMode', 'false');
     }
   }, []);
 
   useEffect(() => {
-    const storedLang = localStorage.getItem('lang');
+    const storedLang = localStorage.getItem('lang') || 'fr';
     const storedDarkMode = localStorage.getItem('darkMode') === 'true';
 
-    if (storedLang) {
-      i18n.changeLanguage(storedLang);
-      setCurrentLang(storedLang);
-    } else {
-      i18n.changeLanguage('fr');
-      setCurrentLang('fr');
-    }
+    i18n.changeLanguage(storedLang);
+    setCurrentLang(storedLang);
+
+    document.documentElement.lang = storedLang;
+    document.documentElement.dir = storedLang === 'ar' ? 'rtl' : 'ltr';
 
     setIsDarkMode(storedDarkMode);
     if (storedDarkMode) {
@@ -82,6 +86,7 @@ const Settings = () => {
               </button>
             </div>
           </div>
+
           <div>
             <h2 className="text-xl font-semibold dark:text-white">{t('theme')}</h2>
             <div className="mt-4 flex items-center space-x-4">

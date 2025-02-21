@@ -25,45 +25,48 @@ const SearchPage = () => {
   const cache = useRef(new Map());
   const [retryCount, setRetryCount] = useState(0);
 
-  const fetchSearchResults = useCallback(async (query) => {
-    if (!query.trim()) return;
+  const fetchSearchResults = useCallback(
+    async (query) => {
+      if (!query.trim()) return;
 
-    setLoading(true);
-    setError(null);
+      setLoading(true);
+      setError(null);
 
-    if (cache.current.has(query)) {
-      setResults(cache.current.get(query));
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const data = await searchService(query);
-      console.log('Données de recherche:', data);
-
-      const groupedResults = data.results.reduce(
-        (acc, item) => {
-          if (item.type === 'album') acc.albums.push(item);
-          if (item.type === 'artist') acc.artists.push(item);
-          if (item.type === 'track') acc.tracks.push(item);
-          return acc;
-        },
-        { albums: [], artists: [], tracks: [] }
-      );
-
-      cache.current.set(query, groupedResults);
-      setResults(groupedResults);
-    } catch (err) {
-      if (retryCount < MAX_RETRIES) {
-        setRetryCount((prev) => prev + 1);
-        setTimeout(() => fetchSearchResults(query), RETRY_DELAY);
-      } else {
-        setError('Une erreur est survenue lors de la recherche. Veuillez réessayer plus tard.');
+      if (cache.current.has(query)) {
+        setResults(cache.current.get(query));
+        setLoading(false);
+        return;
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [retryCount]);
+
+      try {
+        const data = await searchService(query);
+        console.log('Données de recherche:', data);
+
+        const groupedResults = data.results.reduce(
+          (acc, item) => {
+            if (item.type === 'album') acc.albums.push(item);
+            if (item.type === 'artist') acc.artists.push(item);
+            if (item.type === 'track') acc.tracks.push(item);
+            return acc;
+          },
+          { albums: [], artists: [], tracks: [] }
+        );
+
+        cache.current.set(query, groupedResults);
+        setResults(groupedResults);
+      } catch (err) {
+        if (retryCount < MAX_RETRIES) {
+          setRetryCount((prev) => prev + 1);
+          setTimeout(() => fetchSearchResults(query), RETRY_DELAY);
+        } else {
+          setError('Une erreur est survenue lors de la recherche. Veuillez réessayer plus tard.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [retryCount]
+  );
 
   const handleSuggestions = () => {
     if (query.length < 3) {

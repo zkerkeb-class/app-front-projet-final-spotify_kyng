@@ -8,8 +8,11 @@ import { useRouter } from 'next/navigation';
 import Container from '@/components/UI/Container';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import ErrorMessage from '@/components/UI/ErrorMessage';
+import { useTranslation } from 'react-i18next';
+import OptimizedImage from '@/components/UI/OptimizedImage';
 
-const img = 'https://placehold.co/200x200/jpeg';
+const imagePlaceholder =
+  'https://sternbergclinic.com.au/wp-content/uploads/2020/03/placeholder.png';
 
 const ArtistDetail = () => {
   const { id } = useParams();
@@ -18,12 +21,12 @@ const ArtistDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const { t } = useTranslation();
 
-  // Fonction pour récupérer les données de l'artiste et ses albums
   const fetchArtistData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null); // Réinitialise l'erreur
+      setError(null);
       const artistData = await getArtistById(id);
       setArtist(artistData);
 
@@ -31,8 +34,7 @@ const ArtistDetail = () => {
       const response = await getAlbumsByArtist(artistID);
       setAlbums(response.albums || []);
     } catch (err) {
-      setError('Erreur lors du chargement des données.');
-      console.error(err);
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,6 @@ const ArtistDetail = () => {
       console.error('Invalid ID or type');
       return;
     }
-
     router.push(`/album/${id}`);
   };
 
@@ -63,7 +64,7 @@ const ArtistDetail = () => {
       }
     };
 
-    return isValidUrl(imagePath) ? imagePath : img;
+    return isValidUrl(imagePath) ? imagePath : imagePlaceholder;
   };
 
   const retryFetchData = () => {
@@ -71,7 +72,13 @@ const ArtistDetail = () => {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage error={error} onRetry={retryFetchData} />;
+  if (error)
+    return (
+      <ErrorMessage
+        error={error}
+        onRetry={retryFetchData}
+      />
+    );
 
   if (!artist) {
     return <div className="text-gray-400 text-center text-xl py-4">Artiste introuvable.</div>;
@@ -90,10 +97,10 @@ const ArtistDetail = () => {
         <div className="absolute inset-0 bg-black opacity-60 z-0" />
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-white">
-            <img
-              src={artist.image || img}
-              alt="Profile"
-              className="w-full h-full object-cover"
+            <OptimizedImage
+              src={getImage(artist.image?.[0]?.path)}
+              alt={`${artist.name} cover image`}
+              className="w-full h-full object-cover rounded-xl"
             />
           </div>
           <div>
@@ -103,10 +110,8 @@ const ArtistDetail = () => {
         </div>
       </div>
       <Container>
-        {/* Albums */}
         <div className="p-6">
           <h3 className="text-3xl font-semibold mb-6">Albums</h3>
-
           {albums.length === 0 ? (
             <p className="text-center text-xl text-gray-400">Aucun album disponible</p>
           ) : (

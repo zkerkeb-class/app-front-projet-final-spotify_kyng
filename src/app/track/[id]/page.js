@@ -8,6 +8,7 @@ import { getArtistById } from '@/services/artist.service';
 import { FaPlay, FaPause } from 'react-icons/fa';
 import Link from 'next/link';
 import Container from '@/components/UI/Container';
+import { useTranslation } from 'react-i18next';
 
 import { setIsPlaying, setCurrentTrack } from '@/lib/features/player/playerSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -21,6 +22,7 @@ const TrackDetail = () => {
   const [error, setError] = useState(null);
   const { isPlaying, currentTrack } = useAppSelector((state) => state.player);
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!id) return;
@@ -42,8 +44,7 @@ const TrackDetail = () => {
 
         setTrack({ ...trackData, artistId: artist, albumId: album });
       } catch (err) {
-        setError('Erreur lors du chargement du morceau.');
-        console.error(err);
+        setError(t('loadError'));
       } finally {
         setLoading(false);
       }
