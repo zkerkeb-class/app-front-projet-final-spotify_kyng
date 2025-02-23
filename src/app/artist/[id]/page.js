@@ -24,7 +24,8 @@ const ArtistDetail = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { t } = useTranslation();
-  const [imageUrl, setImageUrl] = useState(imagePlaceholder);
+  const [artistImageUrl, setArtistImageUrl] = useState(imagePlaceholder); // Image de l'artiste
+  const [albumImageUrl, setAlbumImageUrl] = useState(imagePlaceholder); // Image de l'album
 
   const fetchArtistData = useCallback(async () => {
     try {
@@ -35,25 +36,75 @@ const ArtistDetail = () => {
       console.log('artistData : ', JSON.stringify(artistData, null, 2));
       setArtist(artistData);
 
-      const artistID = artistData._id;
+      const artistID = id;
+      console.log('artistID:', artistID);
 
       const imageArtist = artistData.imageUrls;
       console.log('imageArtist :', imageArtist);
 
-      const getImage = (imageType) => {
-        if (imageType === 'cloudfront') {
+      const getImageArtist = (imageType) => {
+        if (imageType === 'cloudfront' && imageArtist?.cloudfront) {
           return getImageUrl(imageArtist.cloudfront);
-        } else if (imageType === 'local') {
+        } else if (imageType === 'local' && imageArtist?.local) {
           return getImageUrl(imageArtist.local);
         }
         return getImageUrl('');
       };
 
-      const imageUrl = getImage('local');
-      setImageUrl(imageUrl);
+      const artistImage = getImageArtist('local');
+      setArtistImageUrl(artistImage);
 
       const response = await getAlbumsByArtist(artistID);
-      setAlbums(response.albums || []);
+      console.log('Album titles:', response.albums);
+
+      // // Corrigé : accès aux images d'album
+      // const imageAlbums = response.albums?.map((album) => album.images).flat() || [];
+      // console.log('Image albums:', imageAlbums);
+
+      // const getImageAlbums = (imageType) => {
+      //   if (imageAlbums?.length > 0) {
+      //     if (imageType === 'cloudfront') {
+      //       return getImageUrl(imageAlbums[0]?.path || '');
+      //     }
+      //     else if (imageType === 'local') {
+      //       return getImageUrl(imageAlbums[0]?.path || '');
+      //     }
+      //   }
+      //   return getImageUrl('');
+      // };
+      
+
+      // const albumImage = getImageAlbums('local');
+      // setAlbumImageUrl(albumImage);
+
+      const imageAlbums = response.albums?.map((album) => ({
+        ...album,
+        images: album.images || [],
+      })) || [];
+      console.log('Image albums:', imageAlbums);
+      
+      // Fonction pour récupérer l'image d'un album spécifique en fonction de l'ID
+      const getImageAlbums = (albumId, imageType) => {
+        const album = imageAlbums.find((album) => album._id === albumId); // Trouver l'album par ID
+        if (album?.images?.length > 0) {
+          // Vérifier le type d'image
+          if (imageType === 'cloudfront') {
+            return getImageUrl(album.images[0]?.path || ''); // Retourner l'image Cloudfront
+          } else if (imageType === 'local') {
+            return getImageUrl(album.images[0]?.path || ''); // Retourner l'image locale
+          }
+        }
+        return getImageUrl(''); // Si aucune image n'est trouvée, retourner une URL vide
+      };
+      
+      // Récupérer l'image pour chaque album en fonction de l'ID de l'album
+      const albumImages = response.albums.map((album) => {
+        const albumImage = getImageAlbums(album._id, 'local'); // Utilisation dynamique de l'ID de chaque album
+        console.log(`albumImage for ${album.title}: ${albumImage}`);
+        return { ...album, albumImage };
+      });
+
+      setAlbums(albumImages);
     } catch (err) {
       setError(t('loadError'));
     } finally {
@@ -73,19 +124,6 @@ const ArtistDetail = () => {
       return;
     }
     router.push(`/album/${id}`);
-  };
-
-  const getImage = (imagePath) => {
-    const isValidUrl = (url) => {
-      try {
-        new URL(url);
-        return true;
-      } catch {
-        return false;
-      }
-    };
-
-    return isValidUrl(imagePath) ? imagePath : imagePlaceholder;
   };
 
   const retryFetchData = () => {
@@ -120,7 +158,7 @@ const ArtistDetail = () => {
           <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-white">
             <Suspense fallback={<div>Loading image...</div>}>
               <Image
-                src={imageUrl}
+                src={artistImageUrl}
                 alt={`Image de ${artist.name}`}
                 className="w-full h-full object-cover rounded-lg"
                 width={144}
@@ -150,12 +188,13 @@ const ArtistDetail = () => {
                   aria-label={`Album ${album.title}`}
                 >
                   <div className="relative rounded-lg overflow-hidden bg-gray-800">
-                    <img
-                      src={getImage(album.images?.[0]?.path || album.image)}
-                      alt={album.title}
-                      className="w-full h-[250px] object-cover"
-                      loading="lazy"
-                    />
+                    <Image
+                    src={album.albumImage}
+                    alt={`Image de ${album.title}`}
+                    className="w-full h-[250px] object-cover"
+                    width={144}
+                    height={144}
+                  />
                     <div className="absolute inset-0 bg-gray-800 opacity-50 z-10" />
                     <div className="absolute bottom-0 left-0 p-4 z-20">
                       <h4 className="text-lg font-semibold text-white">{album.title}</h4>

@@ -29,6 +29,7 @@ const AlbumDetail = () => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const [imageUrl, setImageUrl] = useState(imagePlaceholder);
+  const [audio, setAudio] = useState(null);
 
   const fetchAlbum = useCallback(async () => {
     if (!id || isRetrying) return;
@@ -76,25 +77,31 @@ const AlbumDetail = () => {
   };
 
   const handlePlayClick = (track) => {
+    if (!track.audioLink) {
+      console.error("Erreur : L'URL de la piste est introuvable.", track);
+      return;
+    }
+  
     if (currentTrack?._id === track._id) {
+      if (isPlaying) {
+        audio?.pause();
+      } else {
+        audio?.play();
+      }
       dispatch(setIsPlaying(!isPlaying));
     } else {
+      if (audio) {
+        audio.pause();
+      }
+  
+      const newAudio = new Audio(track.audioLink);
+      newAudio.onerror = () => console.error("Erreur de chargement de l'audio :", track.audioUrl);
+  
+      setAudio(newAudio);
       dispatch(setCurrentTrack(track));
       dispatch(setIsPlaying(true));
+      newAudio.play();
     }
-  };
-
-  const getImage = (imagePath) => {
-    const isValidUrl = (url) => {
-      try {
-        new URL(url);
-        return true;
-      } catch {
-        return false;
-      }
-    };
-
-    return isValidUrl(imagePath) ? imagePath : imagePlaceholder;
   };
 
   const retryFetchData = () => {
@@ -134,7 +141,7 @@ const AlbumDetail = () => {
                 src={imageUrl}
                 alt={`Image de ${album.title}`}
                 className="w-full h-full object-cover rounded-lg"
-                width={144} // Ajuste la taille selon ton besoin
+                width={144}
                 height={144}
               />
             </Suspense>

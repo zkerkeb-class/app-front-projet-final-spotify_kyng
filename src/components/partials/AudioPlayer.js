@@ -62,7 +62,7 @@ const AudioPlayer = ({ socket }) => {
       dispatch(setIsLoading(true));
 
       try {
-        const selectedTrack = tracks.find((track) => track._id === currentTrack?._id);
+        const selectedTrack = tracks.find((track) => track?._id === currentTrack?._id);
         if (!selectedTrack) throw new Error('Track not found');
 
         const audioUrl = await streamTrack(selectedTrack.audioLink);

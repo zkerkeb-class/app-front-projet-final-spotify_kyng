@@ -107,7 +107,7 @@ const Home = () => {
   }, [topArtists, topAlbums]);
 
   useEffect(() => {
-    if (topArtists.length && topAlbums.length) {
+    if (topArtists?.length && topAlbums?.length) {
       fetchImageUrls();
     }
   }, [topArtists, topAlbums, fetchImageUrls]);
@@ -123,16 +123,16 @@ const Home = () => {
 
   return (
     <Container>
-      <h1 className="text-3xl sm:text-xl font-extrabold mb-10">Les playlists du moment</h1>
+      <h1 className="text-3xl sm:text-xl font-extrabold mb-10">🎵 Les playlists du moment 🎵</h1>
       <h3 className="font-extrabold mt-10">Top 10 des artistes populaires</h3>
       <HorizontalSlider>
         {topArtists?.map((artist) => {
           const artistImageUrl = imageUrls[artist._id] || imgPlaceholder;
           return (
             <ArtistCard
-              key={artist._id}
-              title={artist.name}
-              desc={artist.genre}
+              key={artist?._id}
+              title={artist?.name}
+              desc={artist?.genre}
               imagePath={artistImageUrl}
               onCardClick={() => handleCardClick(artist._id, 'artist')}
             />
@@ -144,9 +144,9 @@ const Home = () => {
       <HorizontalSlider>
         {tracks?.map((track) => (
           <PlaylistCard
-            key={track._id}
-            title={track.title}
-            desc={track.releaseYear}
+            key={track?._id}
+            title={track?.title}
+            desc={track?.releaseYear}
             onCardClick={() => handleCardClick(track._id, 'track')}
             onPlayClick={() => handlePlayClick(track)}
             isPlaying={isPlaying && currentTrack?.id === track._id}
@@ -161,9 +161,9 @@ const Home = () => {
           const albumImageUrl = imageUrls[album._id] || imgPlaceholder;
           return (
             <AlbumCard
-              key={album._id}
-              title={album.title}
-              desc={album.artistId.name}
+              key={album?._id}
+              title={album?.title}
+              desc={album?.artistId?.name}
               imagePath={albumImageUrl}
               onCardClick={() => handleCardClick(album._id, 'album')}
               className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5"
